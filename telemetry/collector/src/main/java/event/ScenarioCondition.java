@@ -1,7 +1,7 @@
 package event;
 
 import constant.ConditionType;
-import constant.Operation;
+import constant.ConditionOperation;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -14,6 +14,6 @@ public class ScenarioCondition {
     @Enumerated(EnumType.STRING)
     private ConditionType type;
     @Enumerated(EnumType.STRING)
-    private Operation operation;
+    private ConditionOperation operation;
     private Integer value;
 }
