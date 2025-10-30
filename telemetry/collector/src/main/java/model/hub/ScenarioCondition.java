@@ -1,6 +1,7 @@
-package event;
+package model.hub;
 
-import constant.ActionType;
+import constant.ConditionType;
+import constant.ConditionOperation;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -8,9 +9,11 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class DeviceAction {
+public class ScenarioCondition {
     private String sensorId;
     @Enumerated(EnumType.STRING)
-    private ActionType type;
+    private ConditionType type;
+    @Enumerated(EnumType.STRING)
+    private ConditionOperation operation;
     private Integer value;
 }

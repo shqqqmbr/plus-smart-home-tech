@@ -1,21 +1,19 @@
-package event;
+package dto.hub;
 
 import constant.DeviceType;
-import constant.SensorEventType;
+import constant.HubEventType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
-public class DeviceAddedEvent extends SensorEvent {
+public class DeviceAddedDto extends HubEventDto {
     private String id;
     @Enumerated(EnumType.STRING)
     private DeviceType deviceType;
 
     @Override
-    public SensorEventType getType() {
-        return  SensorEventType.DEVICE_ADDED_EVENT;
+    public HubEventType getType() {
+        return HubEventType.DEVICE_ADDED_EVENT;
     }
 }

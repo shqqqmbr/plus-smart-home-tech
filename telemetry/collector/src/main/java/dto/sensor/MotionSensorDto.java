@@ -1,13 +1,13 @@
-package event;
+package dto.sensor;
 
 import constant.SensorEventType;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
-public class SwitchSensorEvent extends SensorEvent {
-    private Boolean state;
+public class MotionSensorDto extends SensorEventDto {
+    private Integer linkQuality;
+    private Boolean motion;
+    private Integer voltage;
 
     @Override
     public SensorEventType getType() {

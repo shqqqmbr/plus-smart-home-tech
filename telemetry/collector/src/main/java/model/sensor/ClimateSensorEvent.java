@@ -1,4 +1,4 @@
-package event;
+package model.sensor;
 
 import constant.SensorEventType;
 import lombok.Data;

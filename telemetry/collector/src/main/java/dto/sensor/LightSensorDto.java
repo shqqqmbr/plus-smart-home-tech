@@ -1,12 +1,10 @@
-package event;
+package dto.sensor;
 
 import constant.SensorEventType;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
-public class LightSensorEvent extends SensorEvent {
+public class LightSensorDto extends SensorEventDto {
     private Integer linkQuality;
     private Integer luminosity;
 

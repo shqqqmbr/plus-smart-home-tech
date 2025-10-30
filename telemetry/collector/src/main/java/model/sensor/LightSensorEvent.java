@@ -1,4 +1,4 @@
-package event;
+package model.sensor;
 
 import constant.SensorEventType;
 import lombok.Data;
@@ -6,13 +6,12 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class MotionSensorEvent extends SensorEvent {
+public class LightSensorEvent extends SensorEvent {
     private Integer linkQuality;
-    private Boolean motion;
-    private Integer voltage;
+    private Integer luminosity;
 
     @Override
     public SensorEventType getType() {
-        return SensorEventType.MOTION_SENSOR_EVENT;
+        return SensorEventType.LIGHT_SENSOR_EVENT;
     }
 }

@@ -1,4 +1,4 @@
-package event;
+package model.sensor;
 
 import constant.SensorEventType;
 import lombok.Data;
@@ -6,11 +6,11 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class DeviceRemovedEvent extends SensorEvent {
-    private String id;
+public class SwitchSensorEvent extends SensorEvent {
+    private Boolean state;
 
     @Override
     public SensorEventType getType() {
-        return SensorEventType.DEVICE_REMOVED_EVENT;
+        return SensorEventType.SWITCH_SENSOR_EVENT;
     }
 }
