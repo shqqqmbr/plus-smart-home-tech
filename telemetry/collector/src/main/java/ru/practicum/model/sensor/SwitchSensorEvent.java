@@ -1,8 +1,8 @@
 package ru.practicum.model.sensor;
 
-import ru.practicum.constant.SensorEventType;
 import lombok.Data;
 import lombok.ToString;
+import ru.practicum.constant.SensorEventType;
 
 @Data
 @ToString

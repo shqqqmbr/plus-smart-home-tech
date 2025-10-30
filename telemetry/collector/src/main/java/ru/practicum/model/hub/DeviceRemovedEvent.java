@@ -1,8 +1,8 @@
 package ru.practicum.model.hub;
 
-import ru.practicum.constant.HubEventType;
 import lombok.Data;
 import lombok.ToString;
+import ru.practicum.constant.HubEventType;
 
 @Data
 @ToString

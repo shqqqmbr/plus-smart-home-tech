@@ -15,4 +15,17 @@ import java.util.Properties;
 public class KafkaConfig {
     private Map<String, String> topics;
     private Properties producerProperties;
+
+    public Properties getProducerProperties() {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.springframework.kafka.support.serializer.JsonSerializer");
+        props.put("acks", "all");
+        props.put("retries", "3");
+        if (producerProperties != null) {
+            props.putAll(producerProperties);
+        }
+        return props;
+    }
 }

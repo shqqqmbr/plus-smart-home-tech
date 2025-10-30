@@ -1,19 +1,17 @@
 package ru.practicum.model.hub;
 
-import ru.practicum.constant.ConditionType;
-import ru.practicum.constant.ConditionOperation;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.ToString;
+import ru.practicum.constant.ConditionOperation;
+import ru.practicum.constant.ConditionType;
 
 @Data
 @ToString
 public class ScenarioCondition {
     private String sensorId;
-    @Enumerated(EnumType.STRING)
+
     private ConditionType type;
-    @Enumerated(EnumType.STRING)
+
     private ConditionOperation operation;
     private Integer value;
 }

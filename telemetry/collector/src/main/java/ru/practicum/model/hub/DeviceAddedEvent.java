@@ -1,17 +1,14 @@
 package ru.practicum.model.hub;
 
-import ru.practicum.constant.DeviceType;
-import ru.practicum.constant.HubEventType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.ToString;
+import ru.practicum.constant.DeviceType;
+import ru.practicum.constant.HubEventType;
 
 @Data
 @ToString
 public class DeviceAddedEvent extends HubEvent {
     private String id;
-    @Enumerated(EnumType.STRING)
     private DeviceType deviceType;
 
     @Override

@@ -1,9 +1,9 @@
 package ru.practicum.model.hub;
 
-import ru.practicum.constant.HubEventType;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
+import ru.practicum.constant.HubEventType;
 
 @Data
 @ToString
