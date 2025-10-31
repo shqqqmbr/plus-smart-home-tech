@@ -8,7 +8,6 @@ import ru.practicum.constant.ActionType;
 @ToString
 public class DeviceAction {
     private String sensorId;
-
     private ActionType type;
     private Integer value;
 }

@@ -11,9 +11,8 @@ import java.time.Instant;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type",
-        defaultImpl = HubEventType.class
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "type"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DeviceAddedEvent.class, name = "DEVICE_ADDED"),

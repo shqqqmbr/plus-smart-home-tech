@@ -2,8 +2,12 @@ package ru.practicum.kafka;
 
 import lombok.Data;
 import lombok.ToString;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 import java.util.Map;
 import java.util.Properties;
@@ -27,5 +31,15 @@ public class KafkaConfig {
             props.putAll(producerProperties);
         }
         return props;
+    }
+
+    @Bean
+    public KafkaProducer<String, HubEventAvro> kafkaHubProducer() {
+        return new KafkaProducer<>(getProducerProperties());
+    }
+
+    @Bean
+    public KafkaProducer<String, SensorEventAvro> kafkaSensorProducer() {
+        return new KafkaProducer<>(getProducerProperties());
     }
 }
