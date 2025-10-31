@@ -1,5 +1,6 @@
 package ru.practicum.model.sensor;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +29,7 @@ import java.time.Instant;
 @ToString
 public abstract class SensorEvent {
     @NotBlank
+    @JsonAlias("id")
     private String sensorId;
     @NotBlank
     private String hubId;
