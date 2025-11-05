@@ -5,11 +5,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
-import ru.practicum.handler.sensor.SensorEventHandler;
 import ru.practicum.model.sensor.SensorEvent;
 import ru.practicum.model.sensor.SwitchSensorEvent;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
+import ru.practicum.telemetry.event.SensorEventAvro;
+import ru.practicum.telemetry.event.SwitchSensorAvro;
 
 @Component(value = "SWITCH_SENSOR")
 @AllArgsConstructor

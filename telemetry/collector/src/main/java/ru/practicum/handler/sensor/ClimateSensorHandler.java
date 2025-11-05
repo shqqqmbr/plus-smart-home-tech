@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.model.sensor.ClimateSensorEvent;
 import ru.practicum.model.sensor.SensorEvent;
-import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+import ru.practicum.telemetry.event.ClimateSensorAvro;
+import ru.practicum.telemetry.event.SensorEventAvro;
 
 @Component(value = "CLIMATE_SENSOR")
 @AllArgsConstructor

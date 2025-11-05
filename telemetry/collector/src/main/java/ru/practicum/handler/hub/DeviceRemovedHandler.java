@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.model.hub.DeviceRemovedEvent;
 import ru.practicum.model.hub.HubEvent;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.practicum.telemetry.event.DeviceRemovedEventAvro;
+import ru.practicum.telemetry.event.HubEventAvro;
 
 @Component(value = "DEVICE_REMOVED")
 @AllArgsConstructor

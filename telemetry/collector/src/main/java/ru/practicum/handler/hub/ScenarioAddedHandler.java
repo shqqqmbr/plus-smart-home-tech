@@ -8,7 +8,7 @@ import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.model.hub.HubEvent;
 import ru.practicum.model.hub.ScenarioAddedEvent;
-import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.practicum.telemetry.event.*;
 
 import java.util.List;
 import java.util.stream.Collectors;

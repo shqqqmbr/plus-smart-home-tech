@@ -5,11 +5,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
-import ru.practicum.handler.sensor.SensorEventHandler;
 import ru.practicum.model.sensor.SensorEvent;
 import ru.practicum.model.sensor.MotionSensorEvent;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
+import ru.practicum.telemetry.event.SensorEventAvro;
+import ru.practicum.telemetry.event.MotionSensorAvro;
 
 @Component(value = "MOTION_SENSOR")
 @AllArgsConstructor

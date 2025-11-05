@@ -8,9 +8,9 @@ import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.model.hub.DeviceAddedEvent;
 import ru.practicum.model.hub.HubEvent;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.practicum.telemetry.event.DeviceAddedEventAvro;
+import ru.practicum.telemetry.event.DeviceTypeAvro;
+import ru.practicum.telemetry.event.HubEventAvro;
 
 @Component(value = "DEVICE_ADDED")
 @AllArgsConstructor

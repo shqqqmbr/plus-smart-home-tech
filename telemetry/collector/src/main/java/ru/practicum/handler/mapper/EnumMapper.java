@@ -1,7 +1,7 @@
 package ru.practicum.handler.mapper;
 
 import ru.practicum.constant.DeviceType;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
+import ru.practicum.telemetry.event.DeviceTypeAvro;
 
 public class EnumMapper {
     
