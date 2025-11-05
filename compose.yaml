@@ -33,15 +33,3 @@ services:
                              --partitions 1 --replication-factor 1 --if-not-exists \
                              --bootstrap-server kafka:29092'"
     init: true
-
-  collector-service:
-    build:
-      context: .
-      dockerfile: collector/Dockerfile
-    container_name: collector-service
-    ports:
-      - "8080:8080"
-    depends_on:
-      - kafka
-    environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
