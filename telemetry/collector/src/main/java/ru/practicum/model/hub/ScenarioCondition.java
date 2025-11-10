@@ -2,8 +2,8 @@ package ru.practicum.model.hub;
 
 import lombok.Data;
 import lombok.ToString;
-import ru.practicum.constant.ConditionOperation;
 import ru.practicum.constant.ConditionType;
+import ru.practicum.constant.OperationType;
 
 @Data
 @ToString
@@ -12,6 +12,6 @@ public class ScenarioCondition {
 
     private ConditionType type;
 
-    private ConditionOperation operation;
+    private OperationType operation;
     private Integer value;
 }

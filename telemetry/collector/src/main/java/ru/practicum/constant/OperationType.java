@@ -1,6 +1,6 @@
 package ru.practicum.constant;
 
-public enum ConditionOperation {
+public enum OperationType {
     EQUALS,
     GREATER_THAN,
     LOWER_THAN

@@ -8,7 +8,7 @@ import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.model.hub.HubEvent;
 import ru.practicum.model.hub.ScenarioAddedEvent;
-import ru.practicum.telemetry.event.*;
+import ru.yandex.practicum.kafka.telemetry.event.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,40 +20,32 @@ public class ScenarioAddedHandler implements HubEventHandler {
 
     @Override
     public HubEventType getMessageType() {
-        return HubEventType.SCENARIO_ADDED;
+        return HubEventType.SCENARIO_ADDED_EVENT;
     }
 
     @Override
     public void handle(HubEvent event) {
         ScenarioAddedEvent ev = (ScenarioAddedEvent) event;
-
         List<ScenarioConditionAvro> conditions = ev.getConditions().stream()
                 .map(condition -> {
                     ScenarioConditionAvro.Builder builder = ScenarioConditionAvro.newBuilder()
                             .setSensorId(condition.getSensorId())
                             .setType(EnumMapper.map(condition.getType(), ConditionTypeAvro.class))
-                            .setOperation(EnumMapper.map(condition.getOperation(), ConditionOperationAvro.class));
-                    Object value = condition.getValue();
-                    if (value == null) {
-                        builder = builder.setValue(null);
-                    } else if (value instanceof Integer) {
-                        builder = builder.setValue((Integer) value);
-                    } else if (value instanceof Boolean) {
-                        builder = builder.setValue((Boolean) value);
-                    } else {
-                        throw new IllegalArgumentException("Unsupported value type for condition: " + value.getClass());
-                    }
-
+                            .setOperation(EnumMapper.map(condition.getOperation(), OperationTypeAvro.class));
+                    builder.setValue(condition.getValue());
                     return builder.build();
                 })
                 .collect(Collectors.toList());
+
         List<DeviceActionAvro> actions = ev.getActions().stream()
-                .map(action -> DeviceActionAvro.newBuilder()
-                        .setSensorId(action.getSensorId())
-                        .setType(EnumMapper.map(action.getType(), ActionTypeAvro.class))
-                        .setValue(action.getValue())
-                        .build())
+                .map(action -> {
+                    DeviceActionAvro.Builder builder = DeviceActionAvro.newBuilder()
+                            .setSensorId(action.getSensorId())
+                            .setType(EnumMapper.map(action.getType(), ActionTypeAvro.class));
+                    return builder.build();
+                })
                 .collect(Collectors.toList());
+
         ScenarioAddedEventAvro scenarioAddedEventAvro = ScenarioAddedEventAvro.newBuilder()
                 .setName(ev.getName())
                 .setConditions(conditions)
@@ -69,17 +61,6 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 hubEventAvro
         );
         kafkaProducer.send(record);
-    }
-
-    private Object mapToUnionValue(Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Integer) {
-            return value;
-        } else if (value instanceof Boolean) {
-            return value;
-        } else {
-            throw new IllegalArgumentException("Unsupported value type: " + value.getClass());
-        }
+        kafkaProducer.flush();
     }
 }

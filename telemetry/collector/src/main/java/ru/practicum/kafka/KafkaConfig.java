@@ -6,8 +6,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.practicum.telemetry.event.HubEventAvro;
-import ru.practicum.telemetry.event.SensorEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 import java.util.Map;
 import java.util.Properties;
@@ -24,7 +24,7 @@ public class KafkaConfig {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.springframework.kafka.support.serializer.JsonSerializer");
+        props.put("value.serializer", "ru.practicum.kafka.AvroSerializer");
         props.put("acks", "all");
         props.put("retries", "3");
         if (producerProperties != null) {

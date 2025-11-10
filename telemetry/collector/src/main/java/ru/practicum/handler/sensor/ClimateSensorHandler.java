@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.model.sensor.ClimateSensorEvent;
 import ru.practicum.model.sensor.SensorEvent;
-import ru.practicum.telemetry.event.ClimateSensorAvro;
-import ru.practicum.telemetry.event.SensorEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 @Component(value = "CLIMATE_SENSOR")
 @AllArgsConstructor
@@ -17,17 +17,22 @@ public class ClimateSensorHandler implements SensorEventHandler {
 
     @Override
     public SensorEventType getMessageType() {
-        return SensorEventType.CLIMATE_SENSOR;
+        return SensorEventType.CLIMATE_SENSOR_EVENT;
     }
 
     @Override
     public void handle(SensorEvent event) {
         ClimateSensorEvent ev = (ClimateSensorEvent) event;
-        ClimateSensorAvro climateSensorAvro = ClimateSensorAvro.newBuilder()
+        ClimateSensorAvro.Builder climateSensorBuilder = ClimateSensorAvro.newBuilder()
                 .setTemperatureC(ev.getTemperatureC())
-                .setHumidity(ev.getHumidity())
-                .setCo2Level(ev.getCo2level())
-                .build();
+                .setHumidity(ev.getHumidity());
+        Integer co2level = ev.getCo2Level();
+        if (co2level != null) {
+            climateSensorBuilder.setCo2Level(co2level);
+        } else {
+            climateSensorBuilder.setCo2Level(0);
+        }
+        ClimateSensorAvro climateSensorAvro = climateSensorBuilder.build();
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(ev.getSensorId())
                 .setHubId(ev.getHubId())

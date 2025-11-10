@@ -5,5 +5,6 @@ import ru.practicum.model.hub.HubEvent;
 
 public interface HubEventHandler {
     HubEventType getMessageType();
+
     void handle(HubEvent event);
 }

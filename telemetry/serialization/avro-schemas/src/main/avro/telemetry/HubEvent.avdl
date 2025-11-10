@@ -17,7 +17,7 @@ protocol HubEventProtocol {
 		HUMIDITY
 	}
 
-	enum ConditionOperationAvro {
+	enum OperationTypeAvro {
 		EQUALS,
 		GREATER_THAN,
 		LOWER_THAN
@@ -42,14 +42,14 @@ protocol HubEventProtocol {
 	record ScenarioConditionAvro {
 		string sensor_id;
 		ConditionTypeAvro type;
-		ConditionOperationAvro operation;
-		union{null, int, boolean} value;
+		OperationTypeAvro operation;
+		union{null, int, boolean} value = null;
 	}
 
 	record DeviceActionAvro {
 		string sensor_id;
 		ActionTypeAvro type;
-		int value;
+		int? value = null;
 	}
 
 	record ScenarioAddedEventAvro {

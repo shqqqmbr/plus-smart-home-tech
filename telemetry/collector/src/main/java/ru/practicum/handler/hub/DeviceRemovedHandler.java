@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.model.hub.DeviceRemovedEvent;
 import ru.practicum.model.hub.HubEvent;
-import ru.practicum.telemetry.event.DeviceRemovedEventAvro;
-import ru.practicum.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
 @Component(value = "DEVICE_REMOVED")
 @AllArgsConstructor
@@ -17,7 +17,7 @@ public class DeviceRemovedHandler implements HubEventHandler {
 
     @Override
     public HubEventType getMessageType() {
-        return HubEventType.DEVICE_REMOVED;
+        return HubEventType.DEVICE_REMOVED_EVENT;
     }
 
     @Override
@@ -36,5 +36,6 @@ public class DeviceRemovedHandler implements HubEventHandler {
                 hubEventAvro
         );
         kafkaProducer.send(record);
+        kafkaProducer.flush();
     }
 }
