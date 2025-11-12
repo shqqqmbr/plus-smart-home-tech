@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
+import ru.practicum.kafka.KafkaConfig;
 import ru.practicum.model.hub.DeviceAddedEvent;
 import ru.practicum.model.hub.HubEvent;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 @AllArgsConstructor
 public class DeviceAddedHandler implements HubEventHandler {
     private final KafkaProducer<String, HubEventAvro> kafkaProducer;
+    private final KafkaConfig kafkaConfig;
 
     @Override
     public HubEventType getMessageType() {
@@ -35,10 +37,10 @@ public class DeviceAddedHandler implements HubEventHandler {
                 .setPayload(deviceAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
-                "telemetry.hubs.v1",
+//                или же нужно инжектить через аннотацию value?
+                kafkaConfig.getHubTopic(),
                 hubEventAvro
         );
         kafkaProducer.send(record);
-        kafkaProducer.flush();
     }
 }

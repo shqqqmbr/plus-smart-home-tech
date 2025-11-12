@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
+import ru.practicum.kafka.KafkaConfig;
 import ru.practicum.model.hub.HubEvent;
 import ru.practicum.model.hub.ScenarioRemovedEvent;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 @AllArgsConstructor
 public class ScenarioRemovedHandler implements HubEventHandler {
     private final KafkaProducer<String, HubEventAvro> kafkaProducer;
+    private final KafkaConfig kafkaConfig;
 
     @Override
     public HubEventType getMessageType() {
@@ -32,10 +34,9 @@ public class ScenarioRemovedHandler implements HubEventHandler {
                 .setPayload(scenarioRemovedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
-                "telemetry.hubs.v1",
+                kafkaConfig.getHubTopic(),
                 hubEventAvro
         );
         kafkaProducer.send(record);
-        kafkaProducer.flush();
     }
 }

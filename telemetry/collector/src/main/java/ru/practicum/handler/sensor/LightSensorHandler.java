@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
+import ru.practicum.kafka.KafkaConfig;
 import ru.practicum.model.sensor.LightSensorEvent;
 import ru.practicum.model.sensor.SensorEvent;
 import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 @AllArgsConstructor
 public class LightSensorHandler implements SensorEventHandler {
     private final KafkaProducer<String, SensorEventAvro> kafkaProducer;
+    private final KafkaConfig kafkaConfig;
 
     @Override
     public SensorEventType getMessageType() {
@@ -34,10 +36,9 @@ public class LightSensorHandler implements SensorEventHandler {
                 .setPayload(lightSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
-                "telemetry.sensors.v1",
+                kafkaConfig.getSensorTopic(),
                 sensorEventAvro
         );
         kafkaProducer.send(record);
-        kafkaProducer.flush();
     }
 }

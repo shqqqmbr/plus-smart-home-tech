@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
+import ru.practicum.kafka.KafkaConfig;
 import ru.practicum.model.hub.HubEvent;
 import ru.practicum.model.hub.ScenarioAddedEvent;
 import ru.yandex.practicum.kafka.telemetry.event.*;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ScenarioAddedHandler implements HubEventHandler {
     private final KafkaProducer<String, HubEventAvro> kafkaProducer;
+    private final KafkaConfig kafkaConfig;
 
     @Override
     public HubEventType getMessageType() {
@@ -57,10 +59,9 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 .setPayload(scenarioAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
-                "telemetry.hubs.v1",
+                kafkaConfig.getHubTopic(),
                 hubEventAvro
         );
         kafkaProducer.send(record);
-        kafkaProducer.flush();
     }
 }
