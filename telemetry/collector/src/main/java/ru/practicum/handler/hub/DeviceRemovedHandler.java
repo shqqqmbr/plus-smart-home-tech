@@ -6,10 +6,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.hub.DeviceRemovedEvent;
-import ru.practicum.model.hub.HubEvent;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventProtocol;
 
 @Component(value = "DEVICE_REMOVED")
 @AllArgsConstructor
@@ -23,8 +22,8 @@ public class DeviceRemovedHandler implements HubEventHandler {
     }
 
     @Override
-    public void handle(HubEvent event) {
-        DeviceRemovedEvent ev = (DeviceRemovedEvent) event;
+    public void handle(HubEventProtocol event) {
+        DeviceRemovedEventProto ev = (DeviceRemovedEvent) event;
         DeviceRemovedEventAvro deviceRemovedEvent = DeviceRemovedEventAvro.newBuilder()
                 .setId(ev.getId())
                 .build();

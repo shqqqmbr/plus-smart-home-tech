@@ -1,31 +1,25 @@
 package ru.practicum.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
+import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.handler.hub.HubEventHandler;
 import ru.practicum.handler.sensor.SensorEventHandler;
-import ru.practicum.model.hub.HubEvent;
-import ru.practicum.model.sensor.SensorEvent;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventProtocol;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventProtocol;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
-@RestController
-@RequestMapping(path = "/events", consumes = MediaType.APPLICATION_JSON_VALUE)
-@Validated
-public class EventsController {
-    private final Map<SensorEventType, SensorEventHandler> sensorEventHandlers;
-    private final Map<HubEventType, HubEventHandler> hubEventHandlers;
+
+
+@GrpcService
+public class EventsController extends CollectorC{
+    private final Map<SensorEventProtocol, SensorEventHandler> sensorEventHandlers;
+    private final Map<HubEventProtocol, HubEventHandler> hubEventHandlers;
 
     public EventsController(Set<SensorEventHandler> sensorEventHandlers, Set<HubEventHandler> hubEventHandlers) {
         this.sensorEventHandlers = sensorEventHandlers.stream()
@@ -34,7 +28,6 @@ public class EventsController {
                 .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
     }
 
-    @PostMapping("/sensors")
     public void processSensorEvent(@RequestBody SensorEvent sensorEvent) {
         SensorEventHandler sensorEventHandler = sensorEventHandlers.get(sensorEvent.getType());
         if (sensorEventHandler == null) {
@@ -43,7 +36,6 @@ public class EventsController {
         sensorEventHandler.handle(sensorEvent);
     }
 
-    @PostMapping("/hubs")
     public void processHubEvent(@RequestBody HubEvent hubEvent) {
         HubEventHandler hubEventHandler = hubEventHandlers.get(hubEvent.getType());
         if (hubEventHandler == null) {
