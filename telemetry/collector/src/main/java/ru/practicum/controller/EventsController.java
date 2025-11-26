@@ -6,6 +6,7 @@ import ru.practicum.constant.HubEventType;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.handler.hub.HubEventHandler;
 import ru.practicum.handler.sensor.SensorEventHandler;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventProtocol;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventProtocol;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 
 @GrpcService
-public class EventsController extends CollectorC{
+public class EventsController extends CollectorControllerGrpc.CollectorControllerImplBase {
     private final Map<SensorEventProtocol, SensorEventHandler> sensorEventHandlers;
     private final Map<HubEventProtocol, HubEventHandler> hubEventHandlers;
 
