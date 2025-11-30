@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.hub.HubEvent;
-import ru.practicum.model.hub.ScenarioAddedEvent;
+import ru.yandex.practicum.grpc.telemetry.collector.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.collector.ScenarioAddedEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
 import java.util.List;
@@ -26,20 +26,20 @@ public class ScenarioAddedHandler implements HubEventHandler {
     }
 
     @Override
-    public void handle(HubEvent event) {
-        ScenarioAddedEvent ev = (ScenarioAddedEvent) event;
-        List<ScenarioConditionAvro> conditions = ev.getConditions().stream()
+    public void handle(HubEventProto event) {
+        ScenarioAddedEventProto ev = event.getScenarioAdded();
+        List<ScenarioConditionAvro> conditions = ev.getConditionList().stream()
                 .map(condition -> {
                     ScenarioConditionAvro.Builder builder = ScenarioConditionAvro.newBuilder()
                             .setSensorId(condition.getSensorId())
                             .setType(EnumMapper.map(condition.getType(), ConditionTypeAvro.class))
                             .setOperation(EnumMapper.map(condition.getOperation(), OperationTypeAvro.class));
-                    builder.setValue(condition.getValue());
+                    builder.setValue(condition.getIntValue());
                     return builder.build();
                 })
                 .collect(Collectors.toList());
 
-        List<DeviceActionAvro> actions = ev.getActions().stream()
+        List<DeviceActionAvro> actions = ev.getActionList().stream()
                 .map(action -> {
                     DeviceActionAvro.Builder builder = DeviceActionAvro.newBuilder()
                             .setSensorId(action.getSensorId())
@@ -54,8 +54,8 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 .setActions(actions)
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
-                .setHubId(ev.getHubId())
-                .setTimestamp(ev.getTimestamp())
+                .setHubId(event.getHubId())
+                .setTimestamp(event.getTimestamp())
                 .setPayload(scenarioAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(

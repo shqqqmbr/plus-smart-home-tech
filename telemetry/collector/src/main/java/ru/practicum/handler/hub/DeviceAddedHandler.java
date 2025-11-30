@@ -35,7 +35,7 @@ public class DeviceAddedHandler implements HubEventHandler {
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.from(event.getTimestamp()))
+                .setTimestamp(Instant.ofEpochSecond(event.getTimestamp().getEpochSecond()))
                 .setPayload(deviceAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
