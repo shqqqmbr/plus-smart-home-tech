@@ -7,11 +7,13 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.hub.DeviceAddedEvent;
-import ru.practicum.model.hub.HubEvent;
+import ru.yandex.practicum.grpc.telemetry.collector.DeviceAddedEventProto;
+import ru.yandex.practicum.grpc.telemetry.collector.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+
+import java.time.Instant;
 
 @Component(value = "DEVICE_ADDED")
 @AllArgsConstructor
@@ -25,15 +27,15 @@ public class DeviceAddedHandler implements HubEventHandler {
     }
 
     @Override
-    public void handle(HubEvent event) {
-        DeviceAddedEvent ev = (DeviceAddedEvent) event;
+    public void handle(HubEventProto event) {
+        DeviceAddedEventProto ev = event.getDeviceAdded();
         DeviceAddedEventAvro deviceAddedEventAvro = DeviceAddedEventAvro.newBuilder()
                 .setId(ev.getId())
-                .setType(EnumMapper.map(ev.getDeviceType(), DeviceTypeAvro.class))
+                .setType(EnumMapper.map(ev.getType(), DeviceTypeAvro.class))
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
-                .setHubId(ev.getHubId())
-                .setTimestamp(ev.getTimestamp())
+                .setHubId(event.getHubId())
+                .setTimestamp(Instant.from(event.getTimestamp()))
                 .setPayload(deviceAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
