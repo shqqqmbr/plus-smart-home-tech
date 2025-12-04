@@ -10,7 +10,7 @@ protocol SensorsSnapshotProtocol {
 
 	record SensorsStateAvro {
 		timestamp_ms timestamp;
-		union {
+		union{
 			ClimateSensorAvro,
 			LightSensorAvro,
 			MotionSensorAvro,

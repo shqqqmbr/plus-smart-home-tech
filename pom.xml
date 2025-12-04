@@ -97,7 +97,6 @@
             </dependency>
 
 
-
             <!--    / GRPC dependencies management        -->
         </dependencies>
     </dependencyManagement>
