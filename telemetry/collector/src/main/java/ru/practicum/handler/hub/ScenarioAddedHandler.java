@@ -7,10 +7,11 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.kafka.KafkaConfig;
-import ru.yandex.practicum.grpc.telemetry.collector.HubEventProto;
-import ru.yandex.practicum.grpc.telemetry.collector.ScenarioAddedEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.ScenarioAddedEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,14 @@ public class ScenarioAddedHandler implements HubEventHandler {
                             .setSensorId(condition.getSensorId())
                             .setType(EnumMapper.map(condition.getType(), ConditionTypeAvro.class))
                             .setOperation(EnumMapper.map(condition.getOperation(), OperationTypeAvro.class));
-                    builder.setValue(condition.getIntValue());
+                    switch (condition.getValueCase()) {
+                        case BOOL_VALUE:
+                            builder.setValue(condition.getBoolValue() ? 1 : 0);
+                            break;
+                        case INT_VALUE:
+                            builder.setValue(condition.getIntValue());
+                            break;
+                    }
                     return builder.build();
                 })
                 .collect(Collectors.toList());
@@ -55,7 +63,10 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(event.getTimestamp())
+                .setTimestamp(Instant.ofEpochSecond(
+                        event.getTimestamp().getSeconds(),
+                        event.getTimestamp().getNanos()
+                ))
                 .setPayload(scenarioAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(

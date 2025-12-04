@@ -1,6 +1,6 @@
 package ru.practicum.kafka;
 
-import lombok.ToString;
+import lombok.Data;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -13,9 +13,9 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import java.util.Map;
 import java.util.Properties;
 
+@Data
 @Configuration
 @ConfigurationProperties("collector.kafka")
-@ToString
 public class KafkaConfig {
     private Map<String, String> topics;
     private Properties producerProperties;
@@ -36,10 +36,12 @@ public class KafkaConfig {
         return props;
     }
 
+    @Bean
     public String getHubTopic() {
         return topics != null ? topics.get("telemetry-hubs") : "telemetry.hubs.v1";
     }
 
+    @Bean
     public String getSensorTopic() {
         return topics != null ? topics.get("telemetry-sensors") : "telemetry.sensors.v1";
     }
@@ -63,4 +65,5 @@ public class KafkaConfig {
     public KafkaProducer<String, SensorEventAvro> kafkaSensorProducer() {
         return new KafkaProducer<>(getProducerProperties());
     }
+
 }

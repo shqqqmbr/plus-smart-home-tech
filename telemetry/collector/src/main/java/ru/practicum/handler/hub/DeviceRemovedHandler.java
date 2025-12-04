@@ -6,11 +6,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.kafka.KafkaConfig;
-import ru.yandex.practicum.grpc.telemetry.collector.DeviceRemovedEventProto;
-import ru.yandex.practicum.grpc.telemetry.collector.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceRemovedEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventProtocol;
+
+import java.time.Instant;
 
 @Component(value = "DEVICE_REMOVED")
 @AllArgsConstructor
@@ -31,7 +32,10 @@ public class DeviceRemovedHandler implements HubEventHandler {
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(event.getTimestamp())
+                .setTimestamp(Instant.ofEpochSecond(
+                        event.getTimestamp().getSeconds(),
+                        event.getTimestamp().getNanos()
+                ))
                 .setPayload(deviceRemovedEvent)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(

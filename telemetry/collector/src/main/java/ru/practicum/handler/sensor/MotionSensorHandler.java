@@ -6,8 +6,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.kafka.KafkaConfig;
-import ru.yandex.practicum.grpc.telemetry.collector.MotionSensorProto;
-import ru.yandex.practicum.grpc.telemetry.collector.SensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.MotionSensorProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
@@ -35,7 +35,10 @@ public class MotionSensorHandler implements SensorEventHandler {
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(event.getTimestamp().getSeconds()))
+                .setTimestamp(Instant.ofEpochSecond(
+                        event.getTimestamp().getSeconds(),
+                        event.getTimestamp().getNanos()
+                ))
                 .setPayload(motionSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(

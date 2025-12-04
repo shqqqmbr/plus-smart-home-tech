@@ -10,8 +10,9 @@ import ru.practicum.constant.SensorEventType;
 import ru.practicum.handler.hub.HubEventHandler;
 import ru.practicum.handler.sensor.SensorEventHandler;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
-import ru.yandex.practicum.grpc.telemetry.collector.HubEventProto;
-import ru.yandex.practicum.grpc.telemetry.collector.SensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+
 
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,9 @@ public class EventsController extends CollectorControllerGrpc.CollectorControlle
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
-
+            sensorEventHandlers.get(request.getPayloadCase()).handle(request);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(new StatusRuntimeException(Status.fromThrowable(e)));
         }
@@ -49,17 +52,19 @@ public class EventsController extends CollectorControllerGrpc.CollectorControlle
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         try {
-
+            hubEventHandlers.get(request.getPayloadCase()).handle(request);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(new StatusRuntimeException(Status.fromThrowable(e)));
         }
     }
 
     private HubEventProto.PayloadCase convertToPayloadCase(HubEventType eventType) {
-        return HubEventProto.PayloadCase.valueOf(eventType.name() + "_EVENT");
+        return HubEventProto.PayloadCase.valueOf(eventType.name().replace("_EVENT", ""));
     }
 
     private SensorEventProto.PayloadCase convertToPayloadCase(SensorEventType eventType) {
-        return SensorEventProto.PayloadCase.valueOf(eventType.name() + "_EVENT");
+        return SensorEventProto.PayloadCase.valueOf(eventType.name().replace("_EVENT", ""));
     }
 }
