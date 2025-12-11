@@ -3,12 +3,12 @@ package ru.yandex.practicum.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter @Setter
+@Data
 @Entity
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "conditions")
+@Table(name = "scenario_conditions")
 public class ScenarioCondition {
 
     @Id

@@ -38,6 +38,8 @@ services:
     image: postgres:16.1
     container_name: postgres
     hostname: postgres
+    ports:
+      - "5432:5432"  # Вот эта строка критически важна!
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345

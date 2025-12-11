@@ -2,11 +2,11 @@ package ru.yandex.practicum.starter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.io.BinaryDecoder;
-import org.apache.avro.io.BinaryEncoder;
-import org.apache.avro.io.DecoderFactory;
-import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.Schema;
+import org.apache.avro.io.*;
+import org.apache.avro.specific.SpecificData;
 import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -33,9 +33,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Класс AggregationStarter, ответственный за запуск агрегации данных.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -52,15 +49,8 @@ public class AggregationStarter {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private Thread mainThread;
 
-    /**
-     * Метод для начала процесса агрегации данных.
-     * Подписывается на топики для получения событий от датчиков,
-     * формирует снимок их состояния и записывает в кафку.
-     */
     public void start() {
         if (running.compareAndSet(false, true)) {
-            log.info("=== AGGREGATOR STARTING ===");
-
             executorService.submit(() -> {
                 mainThread = Thread.currentThread();
                 runAggregationProcess();
@@ -74,57 +64,31 @@ public class AggregationStarter {
 
     private void runAggregationProcess() {
         try {
-            // Инициализация продюсера и консьюмера
             initializeProducerAndConsumer();
 
             String sensorsTopic = kafkaConfig.getTopics().get("sensors-events");
             String snapshotsTopic = kafkaConfig.getTopics().get("sensors-snapshots");
 
             if (sensorsTopic == null || snapshotsTopic == null) {
-                log.error("Topics not configured correctly!");
                 running.set(false);
                 return;
             }
 
-            log.info("Subscribing to sensors topic: {}", sensorsTopic);
-            log.info("Will publish snapshots to topic: {}", snapshotsTopic);
-
-            // Проверка соответствия топиков тестовым
-            if (!sensorsTopic.equals("telemetry.sensors.v1")) {
-                log.warn("Warning: Aggregator is subscribed to '{}' but test expects 'telemetry.sensors.v1'", sensorsTopic);
-            }
-            if (!snapshotsTopic.equals("telemetry.snapshots.v1")) {
-                log.warn("Warning: Aggregator will publish to '{}' but test expects 'telemetry.snapshots.v1'", snapshotsTopic);
-            }
-
-            // Подписка на топик
             consumer.subscribe(List.of(sensorsTopic));
-            log.info("Successfully subscribed to {}", sensorsTopic);
-
-            // Цикл обработки событий
             while (running.get()) {
                 try {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(1000));
-
                     if (!records.isEmpty()) {
-                        log.debug("Received {} raw messages", records.count());
                         processRecords(records, snapshotsTopic);
                     }
-
-                } catch (WakeupException e) {
-                    if (running.get()) {
-                        log.info("Consumer woke up, continuing...");
-                    }
                 } catch (Exception e) {
-                    log.error("Error during polling: {}", e.getMessage(), e);
                     if (running.get()) {
-                        Thread.sleep(1000); // Пауза при ошибке
+                        Thread.sleep(1000);
                     }
                 }
             }
 
         } catch (WakeupException ignored) {
-            // игнорируем - закрываем консьюмер и продюсер в блоке finally
             log.info("WakeupException caught, shutting down gracefully");
         } catch (Exception e) {
             log.error("Ошибка во время обработки событий от датчиков", e);
@@ -154,11 +118,6 @@ public class AggregationStarter {
         for (ConsumerRecord<String, byte[]> record : records) {
             try {
                 SensorEventAvro event = deserializeAvro(record.value());
-
-                log.debug("Processing event: hub={}, sensor={}, type={}, offset={}",
-                        event.getHubId(), event.getId(),
-                        event.getPayload().getClass().getSimpleName(), record.offset());
-
                 Optional<SensorsSnapshotAvro> updatedSnapshot = updateState(event);
                 if (updatedSnapshot.isPresent()) {
                     snapshotsToSend.put(event.getHubId(), updatedSnapshot);
@@ -174,11 +133,9 @@ public class AggregationStarter {
             }
         }
 
-        // Отправка всех снапшотов
         for (Map.Entry<String, Optional<SensorsSnapshotAvro>> entry : snapshotsToSend.entrySet()) {
             String hubId = entry.getKey();
             Optional<SensorsSnapshotAvro> snapshotOpt = entry.getValue();
-
             snapshotOpt.ifPresent(snapshot -> {
                 sendSnapshot(snapshot, snapshotsTopic);
                 log.info("Snapshot prepared for hub: {} with {} sensors",
@@ -186,7 +143,6 @@ public class AggregationStarter {
             });
         }
 
-        // Фиксация оффсетов
         try {
             consumer.commitSync();
             if (!processedHubs.isEmpty()) {
@@ -205,15 +161,11 @@ public class AggregationStarter {
     private boolean hasDataChanged(Object oldData, Object newData) {
         if (oldData == null || newData == null) return true;
         if (!oldData.getClass().equals(newData.getClass())) return true;
-
-        // Сравниваем сериализованные байты для точности
         try {
             byte[] bytes1 = serializeAvro(oldData);
             byte[] bytes2 = serializeAvro(newData);
             return !Arrays.equals(bytes1, bytes2);
         } catch (IOException e) {
-            log.warn("Failed to serialize for comparison: {}", e.getMessage());
-            // Fallback: сравниваем через toString
             return !oldData.toString().equals(newData.toString());
         }
     }
@@ -222,12 +174,9 @@ public class AggregationStarter {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
 
-        // Получаем схему из объекта Avro
-        org.apache.avro.Schema schema = org.apache.avro.specific.SpecificData.get().getSchema(avro.getClass());
-
-        // Создаем writer с правильной схемой
-        org.apache.avro.io.DatumWriter<Object> writer =
-                new org.apache.avro.specific.SpecificDatumWriter<>(schema);
+        Schema schema = SpecificData.get().getSchema(avro.getClass());
+        DatumWriter<Object> writer =
+                new SpecificDatumWriter<>(schema);
 
         writer.write(avro, encoder);
         encoder.flush();
@@ -236,33 +185,20 @@ public class AggregationStarter {
 
     private Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
         Optional<SensorsSnapshotAvro> oldSnapshotOpt = snapshotsRepository.get(event.getHubId());
-
-        // Первый снапшот для хаба
         if (!oldSnapshotOpt.isPresent()) {
             log.info("Creating first snapshot for hub: {}", event.getHubId());
             return createAndSaveSnapshot(event, Collections.emptyMap());
         }
-
         SensorsSnapshotAvro oldSnapshot = oldSnapshotOpt.get();
         Map<String, SensorsStateAvro> oldStates = oldSnapshot.getSensorsState();
         SensorsStateAvro oldState = oldStates.get(event.getId());
-
-        // Новый сенсор для хаба
         if (oldState == null) {
             log.info("New sensor {} for hub: {}", event.getId(), event.getHubId());
             return createAndSaveSnapshot(event, oldStates);
         }
 
-        // Проверка таймстампа
-//        if (!oldState.getTimestamp().isBefore(event.getTimestamp())) {
-//            log.debug("Event timestamp is not newer for sensor: {}", event.getId());
-//            return Optional.empty();
-//        }
-
-        // Проверка изменения данных
         Object oldPayload = oldState.getData();
         Object newPayload = event.getPayload();
-
         if (hasDataChanged(oldPayload, newPayload)) {
             log.info("Data changed for sensor: {} in hub: {}", event.getId(), event.getHubId());
             return createAndSaveSnapshot(event, oldStates);
@@ -275,19 +211,15 @@ public class AggregationStarter {
     private Optional<SensorsSnapshotAvro> createAndSaveSnapshot(SensorEventAvro event,
                                                                 Map<String, SensorsStateAvro> existingStates) {
         Map<String, SensorsStateAvro> newStates = new HashMap<>(existingStates);
-
         SensorsStateAvro sensorState = new SensorsStateAvro();
         sensorState.setTimestamp(event.getTimestamp());
         sensorState.setData(event.getPayload());
-
         newStates.put(event.getId(), sensorState);
-
         SensorsSnapshotAvro newSnapshot = SensorsSnapshotAvro.newBuilder()
                 .setHubId(event.getHubId())
                 .setTimestamp(Instant.now())
                 .setSensorsState(newStates)
                 .build();
-
         snapshotsRepository.update(event.getHubId(), newSnapshot);
         return Optional.of(newSnapshot);
     }
@@ -295,7 +227,6 @@ public class AggregationStarter {
     private void sendSnapshot(SensorsSnapshotAvro snapshot, String topic) {
         ProducerRecord<String, SensorsSnapshotAvro> record =
                 new ProducerRecord<>(topic, snapshot.getHubId(), snapshot);
-
         producer.send(record, (RecordMetadata metadata, Exception exception) -> {
             if (exception != null) {
                 log.error("Failed to send snapshot for hub {}: {}",
@@ -309,13 +240,7 @@ public class AggregationStarter {
 
     private void shutdownGracefully() {
         try {
-            log.info("Starting graceful shutdown...");
-
-            // Перед тем, как закрыть продюсер и консьюмер, нужно убедится,
-            // что все сообщения, лежащие в буффере, отправлены и
-            // все оффсеты обработанных сообщений зафиксированы
-
-            // Фиксируем все оффсеты
+            log.info("Starting graceful shutdown");
             try {
                 if (consumer != null) {
                     consumer.commitSync();
@@ -324,8 +249,6 @@ public class AggregationStarter {
             } catch (Exception e) {
                 log.error("Error committing offsets: {}", e.getMessage());
             }
-
-            // Сбрасываем данные в буффере продюсера
             try {
                 if (producer != null) {
                     producer.flush();
@@ -337,7 +260,7 @@ public class AggregationStarter {
 
         } finally {
             try {
-                log.info("Closing consumer...");
+                log.info("Closing consumer");
                 if (consumer != null) {
                     consumer.close(Duration.ofSeconds(5));
                 }
@@ -346,7 +269,7 @@ public class AggregationStarter {
             }
 
             try {
-                log.info("Closing producer...");
+                log.info("Closing producer");
                 if (producer != null) {
                     producer.close(Duration.ofSeconds(5));
                 }
@@ -363,19 +286,14 @@ public class AggregationStarter {
                 executorService.shutdownNow();
                 Thread.currentThread().interrupt();
             }
-
-            log.info("Aggregator stopped");
         }
     }
 
     public void stop() {
         if (running.compareAndSet(true, false)) {
-            log.info("Stopping aggregator...");
-
             if (consumer != null) {
                 consumer.wakeup();
             }
-
             if (mainThread != null) {
                 mainThread.interrupt();
             }

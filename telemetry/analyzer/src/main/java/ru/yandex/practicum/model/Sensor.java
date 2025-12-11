@@ -7,7 +7,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
-@Getter @Setter @EqualsAndHashCode(of = {"sensorId", "hubId"})
+@Data
+@EqualsAndHashCode(of = {"sensorId", "hubId"})
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -15,6 +16,7 @@ import lombok.*;
 public class Sensor {
 
     @Id
+    @Column(name = "id")
     private String sensorId;
 
     @Column(name = "hub_id")

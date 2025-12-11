@@ -35,18 +35,10 @@ public class KafkaConfig {
             producerProps.put("bootstrap.servers", "localhost:9092");
             producerProps.put("key.serializer",
                     "org.apache.kafka.common.serialization.StringSerializer");
-
-            // ВАЖНО: Используем правильный Avro сериализатор
             producerProps.put("value.serializer",
                     "ru.yandex.practicum.GeneralAvroSerializer");
-
-            // ОБЯЗАТЕЛЬНО: URL Schema Registry
             producerProps.put("schema.registry.url", "http://localhost:8081");
-
-            // Опционально: использовать конкретные Avro классы
             producerProps.put("specific.avro.reader", "true");
-
-            // Настройки производительности
             producerProps.put("acks", "all");
             producerProps.put("retries", 3);
             producerProps.put("max.in.flight.requests.per.connection", 1);
@@ -54,9 +46,6 @@ public class KafkaConfig {
             producerProps.put("linger.ms", 5);
             producerProps.put("batch.size", 16384);
             producerProps.put("buffer.memory", 33554432);
-
-            // Убираем JSON-настройки
-            // producerProps.put("spring.json.add.type.headers", "false");
         }
         return producerProps;
     }
@@ -69,20 +58,8 @@ public class KafkaConfig {
             consumerProps.put("group.id", "aggregator-group");
             consumerProps.put("key.deserializer",
                     "org.apache.kafka.common.serialization.StringDeserializer");
-
-            // ВАРИАНТ 1: Использовать KafkaAvroDeserializer (рекомендуется)
-            // consumerProps.put("value.deserializer",
-            //     "io.confluent.kafka.serializers.KafkaAvroDeserializer");
-            // consumerProps.put("schema.registry.url", "http://localhost:8081");
-            // consumerProps.put("specific.avro.reader", "true");
-
-            // ВАРИАНТ 2: Использовать ByteArrayDeserializer + ручную десериализацию
-            // (как у вас сейчас в AggregationStarter)
             consumerProps.put("value.deserializer",
                     "ru.yandex.practicum.SensorEventDeserializer");
-            // Schema registry URL не нужен для ByteArrayDeserializer
-
-            // Настройки consumer
             consumerProps.put("auto.offset.reset", "latest");
             consumerProps.put("enable.auto.commit", "false");
             consumerProps.put("isolation.level", "read_committed");

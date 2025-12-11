@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter @Setter @EqualsAndHashCode(of = "actionId")
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"actionId", "sensorId", "type"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,8 @@ import lombok.*;
 public class Action {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long actionId;
 
     @Column(name = "type")
