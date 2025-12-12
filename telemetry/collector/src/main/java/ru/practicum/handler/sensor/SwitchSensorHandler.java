@@ -27,20 +27,24 @@ public class SwitchSensorHandler implements SensorEventHandler {
     @Override
     public void handle(SensorEventProto event) {
         SwitchSensorProto ev = event.getSwitchSensor();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         SwitchSensorAvro switchSensorAvro = SwitchSensorAvro.newBuilder()
                 .setState(ev.getState())
                 .build();
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(switchSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getSensorTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 sensorEventAvro
         );
         kafkaProducer.send(record);

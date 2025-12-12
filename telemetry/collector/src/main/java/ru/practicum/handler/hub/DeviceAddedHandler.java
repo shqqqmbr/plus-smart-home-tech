@@ -29,21 +29,24 @@ public class DeviceAddedHandler implements HubEventHandler {
     @Override
     public void handle(HubEventProto event) {
         DeviceAddedEventProto ev = event.getDeviceAdded();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         DeviceAddedEventAvro deviceAddedEventAvro = DeviceAddedEventAvro.newBuilder()
                 .setId(ev.getId())
                 .setType(EnumMapper.map(ev.getType(), DeviceTypeAvro.class))
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(deviceAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
-//                или же нужно инжектить через аннотацию value?
                 kafkaConfig.getHubTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 hubEventAvro
         );
         kafkaProducer.send(record);

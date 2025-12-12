@@ -13,8 +13,8 @@ import java.util.Properties;
 @ConfigurationProperties("aggregator.kafka")
 public class KafkaConfig {
     private Map<String, String> topics;
-    private Properties producerProps;
-    private Properties consumerProps;
+    private Properties producerProperties;
+    private Properties consumerProperties;
 
     @Bean
     public Map<String, String> getTopics() {
@@ -30,45 +30,39 @@ public class KafkaConfig {
 
     @Bean
     public Properties getProducerProps() {
-        if (producerProps == null) {
-            producerProps = new Properties();
-            producerProps.put("bootstrap.servers", "localhost:9092");
-            producerProps.put("key.serializer",
-                    "org.apache.kafka.common.serialization.StringSerializer");
-            producerProps.put("value.serializer",
-                    "ru.yandex.practicum.GeneralAvroSerializer");
-            producerProps.put("schema.registry.url", "http://localhost:8081");
-            producerProps.put("specific.avro.reader", "true");
-            producerProps.put("acks", "all");
-            producerProps.put("retries", 3);
-            producerProps.put("max.in.flight.requests.per.connection", 1);
-            producerProps.put("enable.idempotence", "true");
-            producerProps.put("linger.ms", 5);
-            producerProps.put("batch.size", 16384);
-            producerProps.put("buffer.memory", 33554432);
+        if (producerProperties == null) {
+            producerProperties = new Properties();
+            producerProperties.put("bootstrap.servers", "localhost:9092");
+            producerProperties.put("acks", "all");
+            producerProperties.put("retries", 3);
+            producerProperties.put("max.in.flight.requests.per.connection", 1);
+            producerProperties.put("enable.idempotence", "true");
+            producerProperties.put("linger.ms", 5);
+            producerProperties.put("batch.size", 16384);
+            producerProperties.put("buffer.memory", 33554432);
         }
-        return producerProps;
+        return producerProperties;
     }
 
     @Bean
     public Properties getConsumerProps() {
-        if (consumerProps == null) {
-            consumerProps = new Properties();
-            consumerProps.put("bootstrap.servers", "localhost:9092");
-            consumerProps.put("group.id", "aggregator-group");
-            consumerProps.put("key.deserializer",
+        if (consumerProperties == null) {
+            consumerProperties = new Properties();
+            consumerProperties.put("bootstrap.servers", "localhost:9092");
+            consumerProperties.put("group.id", "aggregator-group");
+            consumerProperties.put("key.deserializer",
                     "org.apache.kafka.common.serialization.StringDeserializer");
-            consumerProps.put("value.deserializer",
+            consumerProperties.put("value.deserializer",
                     "ru.yandex.practicum.SensorEventDeserializer");
-            consumerProps.put("auto.offset.reset", "latest");
-            consumerProps.put("enable.auto.commit", "false");
-            consumerProps.put("isolation.level", "read_committed");
-            consumerProps.put("fetch.min.bytes", 1);
-            consumerProps.put("fetch.max.wait.ms", 500);
-            consumerProps.put("max.poll.records", 500);
-            consumerProps.put("session.timeout.ms", 10000);
-            consumerProps.put("heartbeat.interval.ms", 3000);
+            consumerProperties.put("auto.offset.reset", "latest");
+            consumerProperties.put("enable.auto.commit", "false");
+            consumerProperties.put("isolation.level", "read_committed");
+            consumerProperties.put("fetch.min.bytes", 1);
+            consumerProperties.put("fetch.max.wait.ms", 500);
+            consumerProperties.put("max.poll.records", 500);
+            consumerProperties.put("session.timeout.ms", 10000);
+            consumerProperties.put("heartbeat.interval.ms", 3000);
         }
-        return consumerProps;
+        return consumerProperties;
     }
 }

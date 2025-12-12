@@ -27,19 +27,23 @@ public class DeviceRemovedHandler implements HubEventHandler {
     @Override
     public void handle(HubEventProto event) {
         DeviceRemovedEventProto ev = event.getDeviceRemoved();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         DeviceRemovedEventAvro deviceRemovedEvent = DeviceRemovedEventAvro.newBuilder()
                 .setId(ev.getId())
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(deviceRemovedEvent)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getHubTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 hubEventAvro
         );
         kafkaProducer.send(record);

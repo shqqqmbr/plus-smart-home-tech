@@ -27,6 +27,10 @@ public class LightSensorHandler implements SensorEventHandler {
     @Override
     public void handle(SensorEventProto event) {
         LightSensorProto ev = event.getLightSensor();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         LightSensorAvro lightSensorAvro = LightSensorAvro.newBuilder()
                 .setLinkQuality(ev.getLinkQuality())
                 .setLuminosity(ev.getLuminosity())
@@ -34,14 +38,14 @@ public class LightSensorHandler implements SensorEventHandler {
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(lightSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getSensorTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 sensorEventAvro
         );
         kafkaProducer.send(record);

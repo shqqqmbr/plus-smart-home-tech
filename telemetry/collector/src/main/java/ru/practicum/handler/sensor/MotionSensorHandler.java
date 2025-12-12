@@ -27,6 +27,10 @@ public class MotionSensorHandler implements SensorEventHandler {
     @Override
     public void handle(SensorEventProto event) {
         MotionSensorProto ev = event.getMotionSensor();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         MotionSensorAvro motionSensorAvro = MotionSensorAvro.newBuilder()
                 .setLinkQuality(ev.getLinkQuality())
                 .setMotion(ev.getMotion())
@@ -35,14 +39,14 @@ public class MotionSensorHandler implements SensorEventHandler {
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(motionSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getSensorTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 sensorEventAvro
         );
         kafkaProducer.send(record);

@@ -27,24 +27,28 @@ public class TemperatureSensorHandler implements SensorEventHandler {
     @Override
     public void handle(SensorEventProto event) {
         TemperatureSensorProto ev = event.getTemperatureSensor();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         TemperatureSensorAvro temperatureSensorAvro = TemperatureSensorAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(event.getTimestamp().getSeconds()))
+                .setTimestamp(timestamp)
                 .setTemperatureC(ev.getTemperatureC())
                 .setTemperatureF(ev.getTemperatureF())
                 .build();
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(temperatureSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getSensorTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 sensorEventAvro
         );
         kafkaSensorProducer.send(record);

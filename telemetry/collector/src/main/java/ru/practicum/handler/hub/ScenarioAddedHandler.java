@@ -29,6 +29,10 @@ public class ScenarioAddedHandler implements HubEventHandler {
     @Override
     public void handle(HubEventProto event) {
         ScenarioAddedEventProto ev = event.getScenarioAdded();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         List<ScenarioConditionAvro> conditions = ev.getConditionList().stream()
                 .map(condition -> {
                     ScenarioConditionAvro.Builder builder = ScenarioConditionAvro.newBuilder()
@@ -63,14 +67,14 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()
-                ))
+                .setTimestamp(timestamp)
                 .setPayload(scenarioAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getHubTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 hubEventAvro
         );
         kafkaProducer.send(record);
