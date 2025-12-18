@@ -6,10 +6,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 import ru.practicum.constant.SensorEventType;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.sensor.SensorEvent;
-import ru.practicum.model.sensor.SwitchSensorEvent;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SwitchSensorProto;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
+
+import java.time.Instant;
 
 @Component(value = "SWITCH_SENSOR")
 @AllArgsConstructor
@@ -23,19 +25,26 @@ public class SwitchSensorHandler implements SensorEventHandler {
     }
 
     @Override
-    public void handle(SensorEvent event) {
-        SwitchSensorEvent ev = (SwitchSensorEvent) event;
+    public void handle(SensorEventProto event) {
+        SwitchSensorProto ev = event.getSwitchSensor();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         SwitchSensorAvro switchSensorAvro = SwitchSensorAvro.newBuilder()
                 .setState(ev.getState())
                 .build();
         SensorEventAvro sensorEventAvro = SensorEventAvro.newBuilder()
-                .setId(ev.getSensorId())
-                .setHubId(ev.getHubId())
-                .setTimestamp(ev.getTimestamp())
+                .setId(event.getId())
+                .setHubId(event.getHubId())
+                .setTimestamp(timestamp)
                 .setPayload(switchSensorAvro)
                 .build();
         ProducerRecord<String, SensorEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getSensorTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 sensorEventAvro
         );
         kafkaProducer.send(record);

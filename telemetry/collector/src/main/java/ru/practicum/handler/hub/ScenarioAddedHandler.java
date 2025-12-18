@@ -7,10 +7,11 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.hub.HubEvent;
-import ru.practicum.model.hub.ScenarioAddedEvent;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.ScenarioAddedEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,20 +27,31 @@ public class ScenarioAddedHandler implements HubEventHandler {
     }
 
     @Override
-    public void handle(HubEvent event) {
-        ScenarioAddedEvent ev = (ScenarioAddedEvent) event;
-        List<ScenarioConditionAvro> conditions = ev.getConditions().stream()
+    public void handle(HubEventProto event) {
+        ScenarioAddedEventProto ev = event.getScenarioAdded();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
+        List<ScenarioConditionAvro> conditions = ev.getConditionList().stream()
                 .map(condition -> {
                     ScenarioConditionAvro.Builder builder = ScenarioConditionAvro.newBuilder()
                             .setSensorId(condition.getSensorId())
                             .setType(EnumMapper.map(condition.getType(), ConditionTypeAvro.class))
                             .setOperation(EnumMapper.map(condition.getOperation(), OperationTypeAvro.class));
-                    builder.setValue(condition.getValue());
+                    switch (condition.getValueCase()) {
+                        case BOOL_VALUE:
+                            builder.setValue(condition.getBoolValue() ? 1 : 0);
+                            break;
+                        case INT_VALUE:
+                            builder.setValue(condition.getIntValue());
+                            break;
+                    }
                     return builder.build();
                 })
                 .collect(Collectors.toList());
 
-        List<DeviceActionAvro> actions = ev.getActions().stream()
+        List<DeviceActionAvro> actions = ev.getActionList().stream()
                 .map(action -> {
                     DeviceActionAvro.Builder builder = DeviceActionAvro.newBuilder()
                             .setSensorId(action.getSensorId())
@@ -54,12 +66,15 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 .setActions(actions)
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
-                .setHubId(ev.getHubId())
-                .setTimestamp(ev.getTimestamp())
+                .setHubId(event.getHubId())
+                .setTimestamp(timestamp)
                 .setPayload(scenarioAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
                 kafkaConfig.getHubTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 hubEventAvro
         );
         kafkaProducer.send(record);

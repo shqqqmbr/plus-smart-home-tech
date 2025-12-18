@@ -7,11 +7,13 @@ import org.springframework.stereotype.Component;
 import ru.practicum.constant.HubEventType;
 import ru.practicum.handler.mapper.EnumMapper;
 import ru.practicum.kafka.KafkaConfig;
-import ru.practicum.model.hub.DeviceAddedEvent;
-import ru.practicum.model.hub.HubEvent;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceAddedEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+
+import java.time.Instant;
 
 @Component(value = "DEVICE_ADDED")
 @AllArgsConstructor
@@ -25,20 +27,26 @@ public class DeviceAddedHandler implements HubEventHandler {
     }
 
     @Override
-    public void handle(HubEvent event) {
-        DeviceAddedEvent ev = (DeviceAddedEvent) event;
+    public void handle(HubEventProto event) {
+        DeviceAddedEventProto ev = event.getDeviceAdded();
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getSeconds(),
+                event.getTimestamp().getNanos()
+        );
         DeviceAddedEventAvro deviceAddedEventAvro = DeviceAddedEventAvro.newBuilder()
                 .setId(ev.getId())
-                .setType(EnumMapper.map(ev.getDeviceType(), DeviceTypeAvro.class))
+                .setType(EnumMapper.map(ev.getType(), DeviceTypeAvro.class))
                 .build();
         HubEventAvro hubEventAvro = HubEventAvro.newBuilder()
-                .setHubId(ev.getHubId())
-                .setTimestamp(ev.getTimestamp())
+                .setHubId(event.getHubId())
+                .setTimestamp(timestamp)
                 .setPayload(deviceAddedEventAvro)
                 .build();
         ProducerRecord<String, HubEventAvro> record = new ProducerRecord<>(
-//                или же нужно инжектить через аннотацию value?
                 kafkaConfig.getHubTopic(),
+                null,
+                timestamp.toEpochMilli(),
+                event.getHubId(),
                 hubEventAvro
         );
         kafkaProducer.send(record);
