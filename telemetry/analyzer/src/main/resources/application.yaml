@@ -8,11 +8,10 @@ spring:
       discovery:
         enabled: true
         serviceId: config-server
-      fail-fast: false
+      fail-fast: true
       retry:
         useRandomPolicy: true
         max-interval: 6000
-      uri: http://localhost:8888
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres

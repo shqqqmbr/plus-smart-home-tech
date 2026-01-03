@@ -49,3 +49,17 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+  db-store:
+    image: postgres:16.1
+    container_name: store
+    ports:
+      - "5433:5432"  # Вот эта строка критически важна!
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: store
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
