@@ -44,7 +44,6 @@ public class ProductMapperImpl implements ProductMapper {
         try {
             return UUID.fromString(uuidString);
         } catch (IllegalArgumentException e) {
-            // Логируйте ошибку или обрабатывайте по вашему усмотрению
             throw new IllegalArgumentException("Invalid UUID format: " + uuidString, e);
         }
     }

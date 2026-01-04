@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.ProductState;
 import ru.yandex.practicum.constant.QuantityState;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class Product {
     @Id
     @Column(name = "product_id", nullable = false)
+    @UuidGenerator
     UUID productId;
 
     @Column(name = "name", nullable = false)
