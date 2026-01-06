@@ -3,7 +3,7 @@ package ru.yandex.practicum.service;
 import org.springframework.data.domain.Pageable;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.QuantityState;
-import ru.yandex.practicum.model.ProductDto;
+import ru.yandex.practicum.dto.ProductDto;
 
 import java.util.List;
 

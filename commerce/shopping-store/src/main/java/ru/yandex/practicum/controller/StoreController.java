@@ -6,7 +6,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.QuantityState;
-import ru.yandex.practicum.model.ProductDto;
+
+import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.service.ProductServiceImpl;
 
 import java.util.List;

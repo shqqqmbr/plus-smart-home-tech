@@ -6,13 +6,12 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableFeignClients(clients = {ShoppingStoreClient.class})
 @EnableDiscoveryClient
-@EnableFeignClients
-public class ShoppingCartApp {
+public class WarehouseApp {
     public static void main(String[] args) {
-        SpringApplication.run(ShoppingCartApp.class, args);
+        SpringApplication.run(WarehouseApp.class, args);
     }
 }

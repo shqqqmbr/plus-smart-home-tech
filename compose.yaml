@@ -53,11 +53,39 @@ services:
     image: postgres:16.1
     container_name: store
     ports:
-      - "5433:5432"  # Вот эта строка критически важна!
+      - "5433:5432"
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: store
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+  db-cart:
+    image: postgres:16.1
+    container_name: cart
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: cart
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+  db-warehouse:
+    image: postgres:16.1
+    container_name: warehouse
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: warehouse
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s

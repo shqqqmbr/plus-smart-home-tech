@@ -1,9 +1,8 @@
-package ru.yandex.practicum.model;
+package ru.yandex.practicum.dto;
 
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 @Data

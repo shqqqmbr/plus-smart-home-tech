@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "shopping_carts")
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
+
 public class ShoppingCart {
     @Id
     @Column

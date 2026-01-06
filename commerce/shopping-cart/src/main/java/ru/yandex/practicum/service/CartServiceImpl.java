@@ -4,11 +4,11 @@ import jakarta.ws.rs.NotAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.CartProduct;
 import ru.yandex.practicum.model.CartProductId;
 import ru.yandex.practicum.model.ShoppingCart;
-import ru.yandex.practicum.model.ShoppingCartDto;
 import ru.yandex.practicum.repository.CartProductsRepository;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
 

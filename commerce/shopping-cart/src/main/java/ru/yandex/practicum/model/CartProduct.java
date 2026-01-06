@@ -12,7 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@RequiredArgsConstructor
 public class CartProduct {
     @EmbeddedId
     private CartProductId cartProductId;

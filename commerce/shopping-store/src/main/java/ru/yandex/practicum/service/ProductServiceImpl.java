@@ -5,10 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.QuantityState;
+import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
-import ru.yandex.practicum.model.ProductDto;
 import ru.yandex.practicum.repository.ProductRepository;
 
 import java.util.List;

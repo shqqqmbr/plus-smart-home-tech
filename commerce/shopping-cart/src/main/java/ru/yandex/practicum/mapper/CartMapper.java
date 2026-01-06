@@ -1,10 +1,8 @@
 package ru.yandex.practicum.mapper;
 
-import ru.yandex.practicum.ShoppingCartApp;
+import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.model.CartProduct;
-import ru.yandex.practicum.model.CartProductId;
 import ru.yandex.practicum.model.ShoppingCart;
-import ru.yandex.practicum.model.ShoppingCartDto;
 
 import java.util.List;
 
