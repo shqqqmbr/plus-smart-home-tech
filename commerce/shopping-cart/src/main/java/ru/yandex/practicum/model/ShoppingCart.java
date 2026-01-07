@@ -1,10 +1,8 @@
 package ru.yandex.practicum.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -18,12 +16,15 @@ import java.util.UUID;
 
 public class ShoppingCart {
     @Id
-    @Column
-    @UuidGenerator
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "shopping_cart_id")
     private UUID shoppingCartId;
 
+    @Column(name = "username")
     private String username;
 
+    @Column(name = "activated")
     private boolean activated;
 
 }

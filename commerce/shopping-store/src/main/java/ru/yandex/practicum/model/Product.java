@@ -3,7 +3,9 @@ package ru.yandex.practicum.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.ProductState;
@@ -21,11 +23,12 @@ import java.util.UUID;
 public class Product {
     @Id
     @Column(name = "product_id", nullable = false)
-    @UuidGenerator
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "UUID")
     UUID productId;
 
     @Column(name = "name", nullable = false)
-    String name;
+    String productName;
 
     @Column(name = "description", nullable = false)
     String description;
@@ -33,17 +36,17 @@ public class Product {
     @Column(name = "image_src", nullable = false)
     String imageSrc;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "quantity_state")
     QuantityState quantityState;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "product_state")
     ProductState productState;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
     ProductCategory productCategory;

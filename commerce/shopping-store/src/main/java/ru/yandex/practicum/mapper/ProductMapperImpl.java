@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.model.Product;
 
-
 import java.util.UUID;
 
 @Component
@@ -13,8 +12,7 @@ public class ProductMapperImpl implements ProductMapper {
     @Override
     public ProductDto toDto(Product product) {
         return ProductDto.builder()
-                .productId(product.getProductId().toString())
-                .name(product.getName())
+                .productName(product.getProductName())
                 .description(product.getDescription())
                 .imageSrc(product.getImageSrc())
                 .quantityState(product.getQuantityState())
@@ -26,9 +24,10 @@ public class ProductMapperImpl implements ProductMapper {
 
     @Override
     public Product toEntity(ProductDto productDto) {
+        UUID productId = generateProductId(productDto);
         return Product.builder()
-                .productId(convertToUuid(productDto.getProductId()))
-                .name(productDto.getName())
+                .productId(productId)
+                .productName(productDto.getProductName())
                 .description(productDto.getDescription())
                 .imageSrc(productDto.getImageSrc())
                 .quantityState(productDto.getQuantityState())
@@ -38,14 +37,15 @@ public class ProductMapperImpl implements ProductMapper {
                 .build();
     }
 
-    private UUID convertToUuid(String uuidString) {
-        if (uuidString == null || uuidString.trim().isEmpty()) {
-            return null;
+    private UUID generateProductId(ProductDto productDto) {
+        if (productDto.getProductId() != null &&
+                !productDto.getProductId().trim().isEmpty()) {
+            try {
+                return UUID.fromString(productDto.getProductId());
+            } catch (IllegalArgumentException e) {
+                return UUID.randomUUID();
+            }
         }
-        try {
-            return UUID.fromString(uuidString);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid UUID format: " + uuidString, e);
-        }
+        return UUID.randomUUID();
     }
 }

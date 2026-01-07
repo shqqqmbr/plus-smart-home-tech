@@ -20,3 +20,11 @@ spring:
 
 server:
   port: 0
+
+warehouse:
+  address:
+    country: "Russia"
+    city: "Moscow"
+    street: "Arbat"
+    house: "14"
+    flat: "1"

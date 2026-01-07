@@ -14,7 +14,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Map<String, String>> handleNotFoundException(NotFoundException ex) {
-        log.warn("NotFoundException: {}", ex.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

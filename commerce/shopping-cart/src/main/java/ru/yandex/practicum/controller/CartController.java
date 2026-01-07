@@ -3,9 +3,8 @@ package ru.yandex.practicum.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
-import ru.yandex.practicum.model.CartProductId;
-
 import ru.yandex.practicum.service.CartService;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class CartController {
     }
 
     @DeleteMapping
-    public void deactivateCart(String username) {
+    public void deactivateCart(@RequestParam String username) {
         cartService.deactivateCart(username);
     }
 
@@ -40,7 +39,7 @@ public class CartController {
     }
 
     @PostMapping("/change-quantity")
-    public ShoppingCartDto changeQuantity(@RequestParam String username, @RequestBody CartProductId product) {
-        return cartService.changeQuantity(username, product);
+    public ShoppingCartDto changeQuantity(@RequestParam String username, @RequestBody ChangeProductQuantityRequest request) {
+        return cartService.changeQuantity(username, request);
     }
 }

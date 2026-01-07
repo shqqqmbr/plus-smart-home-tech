@@ -12,11 +12,26 @@
     <artifactId>commerce</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>interaction-api</module>
+        <module>warehouse</module>
         <module>shopping-store</module>
         <module>shopping-cart</module>
-        <module>interaction-api</module>
-        <module>warehouser</module>
     </modules>
-
-
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-invoker-plugin</artifactId>-->
+<!--                <version>3.5.0</version>-->
+<!--                <configuration>-->
+<!--                    <pomIncludes>-->
+<!--                        <pomInclude>interaction-api/pom.xml</pomInclude>-->
+<!--                        <pomInclude>warehouse/pom.xml</pomInclude>-->
+<!--                        <pomInclude>shopping-cart/pom.xml</pomInclude>-->
+<!--                        <pomInclude>shopping-store/pom.xml</pomInclude>-->
+<!--                    </pomIncludes>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 </project>
