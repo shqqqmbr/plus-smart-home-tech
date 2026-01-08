@@ -1,6 +1,5 @@
 package ru.yandex.practicum.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,14 +126,14 @@ public class CartServiceImpl implements CartService {
     public ShoppingCartDto changeQuantity(String username, ChangeProductQuantityRequest request) {
         ShoppingCart cart = shoppingCartRepository.findByUsernameIgnoreCaseAndActivated(username, true);
         CartProductId fullId = new CartProductId(
-                UUID.fromString(request.productId()),
+                request.getProductId(),
                 cart.getShoppingCartId()
         );
         CartProduct cartProduct = cartProductsRepository.findById(fullId).get();
-        if (request.newQuantity() == 0) {
+        if (request.getNewQuantity() == 0) {
             cartProductsRepository.delete(cartProduct);
         } else {
-            cartProduct.setQuantity((int) request.newQuantity());
+            cartProduct.setQuantity(Math.toIntExact(request.getNewQuantity()));
             cartProductsRepository.save(cartProduct);
         }
         return getCart(username);

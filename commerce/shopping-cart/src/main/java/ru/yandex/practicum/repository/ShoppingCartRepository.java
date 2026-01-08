@@ -1,7 +1,6 @@
 package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.yandex.practicum.ShoppingCartApp;
 import ru.yandex.practicum.model.ShoppingCart;
 
 import java.util.UUID;

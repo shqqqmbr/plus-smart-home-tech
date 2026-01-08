@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface CartMapper {
     ShoppingCart toEntity(ShoppingCartDto dto, String username);
+
     ShoppingCartDto toDto(ShoppingCart cart, List<CartProduct> cartProducts);
 }

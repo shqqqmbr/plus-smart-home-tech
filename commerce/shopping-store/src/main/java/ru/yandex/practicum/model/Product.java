@@ -2,11 +2,12 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.UuidGenerator;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.ProductState;
 import ru.yandex.practicum.constant.QuantityState;
@@ -17,17 +18,19 @@ import java.util.UUID;
 @Table(name = "products")
 @Data
 @Builder
-@EqualsAndHashCode(of = "productId")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 public class Product {
     @Id
-    @Column(name = "product_id", nullable = false)
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "product_id", nullable = false)
     UUID productId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "product_name", nullable = false)
     String productName;
 
     @Column(name = "description", nullable = false)

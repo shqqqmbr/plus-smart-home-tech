@@ -18,7 +18,7 @@ import java.util.UUID;
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
-    private final DimensionMapper  dimensionMapper;
+    private final DimensionMapper dimensionMapper;
 
     @Override
     public void addNewProduct(NewProductInWarehouseRequest productRequest) {

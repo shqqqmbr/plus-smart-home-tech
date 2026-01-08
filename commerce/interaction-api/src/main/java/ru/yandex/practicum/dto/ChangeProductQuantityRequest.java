@@ -1,14 +1,22 @@
 package ru.yandex.practicum.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-public record ChangeProductQuantityRequest(
+import java.util.UUID;
 
-    @NotBlank
-    String productId,
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class ChangeProductQuantityRequest {
+    @NotNull
+    UUID productId;
 
-    @PositiveOrZero
-    long newQuantity
-) {
+    @NotNull(message = "Количество необходимо указать")
+    @Min(value = 0, message = "Количество должно быть не отрицательное")
+    Long newQuantity;
 }

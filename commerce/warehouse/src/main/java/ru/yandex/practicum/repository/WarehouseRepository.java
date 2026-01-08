@@ -9,8 +9,8 @@ import java.util.UUID;
 
 @Repository
 public interface WarehouseRepository extends JpaRepository<WarehouseProduct, Long> {
-    
+
     Optional<WarehouseProduct> findByProductId(UUID productId);
-    
+
     boolean existsByProductId(UUID productId);
 }

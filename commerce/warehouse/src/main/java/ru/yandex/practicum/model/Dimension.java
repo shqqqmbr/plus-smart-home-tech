@@ -13,7 +13,8 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode(of = "dimensionId")
 @Builder
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "dimensions")
 public class Dimension {
 

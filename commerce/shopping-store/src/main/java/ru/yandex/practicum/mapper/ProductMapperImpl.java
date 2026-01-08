@@ -4,14 +4,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.model.Product;
 
-import java.util.UUID;
-
 @Component
 public class ProductMapperImpl implements ProductMapper {
 
     @Override
     public ProductDto toDto(Product product) {
         return ProductDto.builder()
+                .productId(product.getProductId() != null ? product.getProductId() : null)
                 .productName(product.getProductName())
                 .description(product.getDescription())
                 .imageSrc(product.getImageSrc())
@@ -24,9 +23,7 @@ public class ProductMapperImpl implements ProductMapper {
 
     @Override
     public Product toEntity(ProductDto productDto) {
-        UUID productId = generateProductId(productDto);
         return Product.builder()
-                .productId(productId)
                 .productName(productDto.getProductName())
                 .description(productDto.getDescription())
                 .imageSrc(productDto.getImageSrc())
@@ -35,17 +32,5 @@ public class ProductMapperImpl implements ProductMapper {
                 .productCategory(productDto.getProductCategory())
                 .price(productDto.getPrice())
                 .build();
-    }
-
-    private UUID generateProductId(ProductDto productDto) {
-        if (productDto.getProductId() != null &&
-                !productDto.getProductId().trim().isEmpty()) {
-            try {
-                return UUID.fromString(productDto.getProductId());
-            } catch (IllegalArgumentException e) {
-                return UUID.randomUUID();
-            }
-        }
-        return UUID.randomUUID();
     }
 }

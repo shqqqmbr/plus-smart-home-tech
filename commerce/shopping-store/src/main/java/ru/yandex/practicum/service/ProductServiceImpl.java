@@ -1,19 +1,20 @@
 package ru.yandex.practicum.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.constant.ProductCategory;
+import ru.yandex.practicum.constant.ProductState;
 import ru.yandex.practicum.constant.QuantityState;
-
+import ru.yandex.practicum.dto.PageResponse;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,20 +24,16 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductDto> getAllProducts(ProductCategory productCategory, Pageable pageable) {
-        return productRepository.findByProductCategory(productCategory, pageable).stream()
-                .map(productMapper::toDto)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
-    @Override
-    public ProductDto getProductById(String id) {
-        return productMapper.toDto(productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found")));
+    public PageResponse<ProductDto> getAllProducts(ProductCategory productCategory, Pageable pageable) {
+        Page<Product> productPage = productRepository.findAllByProductCategory(productCategory, pageable);
+        Page<ProductDto> dtoPage = productPage.map(productMapper::toDto);
+        return PageResponse.fromPage(dtoPage);
     }
 
     @Override
     public ProductDto createProduct(ProductDto productDto) {
-        return productMapper.toDto(productRepository.save(productMapper.toEntity(productDto)));
+        Product productSaved = productRepository.save(productMapper.toEntity(productDto));
+        return productMapper.toDto(productSaved);
     }
 
     @Override
@@ -47,30 +44,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public boolean deleteProduct(String id) {
-        productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found"));
-        try {
-            productRepository.deleteById(id);
-        } catch (Exception e) {
-            return false;
-        }
+    public boolean deleteProduct(UUID id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found"));
+        product.setProductState(ProductState.DEACTIVATE);
+        productRepository.save(product);
         return true;
     }
 
     @Override
-    public boolean updateStatus(String id, QuantityState state) {
+    public boolean updateStatus(UUID id, QuantityState quantityState) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found"));
-        product.setQuantityState(state);
-        try {
-            productRepository.save(product);
-        } catch (Exception e) {
-            return false;
-        }
+        product.setQuantityState(quantityState);
+        productRepository.save(product);
         return true;
     }
 
     @Override
     public ProductDto getProduct(String id) {
-        return productMapper.toDto(productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found")));
+        UUID productId = UUID.fromString(id);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product with id=" + id + " not found"));
+        return productMapper.toDto(product);
     }
 }
