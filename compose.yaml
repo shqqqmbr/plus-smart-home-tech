@@ -53,7 +53,7 @@ services:
     image: postgres:16.1
     container_name: store
     ports:
-      - "5433:5432"
+      - "8433:5432"
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
@@ -67,7 +67,7 @@ services:
     image: postgres:16.1
     container_name: cart
     ports:
-      - "5434:5432"
+      - "8434:5432"
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
@@ -81,7 +81,7 @@ services:
     image: postgres:16.1
     container_name: warehouse
     ports:
-      - "5435:5432"
+      - "8435:5432"
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
