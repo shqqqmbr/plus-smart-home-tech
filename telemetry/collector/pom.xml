@@ -53,6 +53,14 @@
             <artifactId>spring-shell-core</artifactId>
             <version>3.2.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -60,6 +68,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>ru.yandex.practicum.ConfigServer</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
