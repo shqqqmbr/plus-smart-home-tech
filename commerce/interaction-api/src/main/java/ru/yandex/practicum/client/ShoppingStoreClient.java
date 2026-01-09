@@ -2,6 +2,7 @@ package ru.yandex.practicum.client;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.dto.ProductDto;
 
 import java.util.UUID;
 
+@FeignClient(name = "shopping-store")
 public interface ShoppingStoreClient {
     Page<ProductDto> getProducts(@RequestParam ProductCategory category, Pageable pageable);
 
