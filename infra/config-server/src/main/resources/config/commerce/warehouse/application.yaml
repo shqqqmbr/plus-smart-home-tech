@@ -11,7 +11,7 @@ spring:
   datasource:
     username: "dbuser"
     password: "12345"
-    url: jdbc:postgresql://db-warehouse:5432/warehouse
+    url: jdbc:postgresql://localhost:5435/warehouse
     driver-class-name: "org.postgresql.Driver"
 
   sql:
