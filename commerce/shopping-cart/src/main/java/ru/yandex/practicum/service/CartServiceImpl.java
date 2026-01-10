@@ -112,12 +112,9 @@ public class CartServiceImpl implements CartService {
         }
 
         List<CartProduct> remainingItems = cartProductsRepository.findAllByCartProductId_ShoppingCartId(shoppingCartId);
-
         if (remainingItems.isEmpty()) {
-            shoppingCart.setActivated(false);
             shoppingCartRepository.save(shoppingCart);
         }
-
         return getCart(shoppingCart.getUsername());
     }
 
