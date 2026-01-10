@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.dto.AddressDto;
 import ru.yandex.practicum.dto.NewProductInWarehouseRequest;
+import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.service.WarehouseService;
 
 @RestController
@@ -21,8 +22,8 @@ public class WarehouseController {
     }
 
     @PostMapping("/check")
-    public boolean checkQuantity(String shoppingCartId, String orderId) {
-        return warehouseService.checkQuantity(shoppingCartId, orderId);
+    public boolean checkQuantity(@RequestBody ShoppingCartDto shoppingCart) {
+        return warehouseService.checkProductQuantityEnoughForShoppingCart(shoppingCart);
     }
 
     @PostMapping("/add")

@@ -6,7 +6,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @Table(name = "carts_products")
 @AllArgsConstructor

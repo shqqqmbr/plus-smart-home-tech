@@ -106,7 +106,7 @@ public class CartServiceImpl implements CartService {
         }
         UUID shoppingCartId = shoppingCart.getShoppingCartId();
         for (UUID productId : productIds) {
-            CartProductId cartProduct = new CartProductId(shoppingCartId, productId);
+            CartProductId cartProduct = new CartProductId(productId, shoppingCartId);
             cartProductsRepository.findById(cartProduct)
                     .ifPresent(cartProductsRepository::delete);
         }

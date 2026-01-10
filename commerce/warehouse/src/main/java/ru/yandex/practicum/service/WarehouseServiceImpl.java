@@ -19,6 +19,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
     private final DimensionMapper dimensionMapper;
+    private final WarehouseAddress address;
 
     @Override
     public void addNewProduct(NewProductInWarehouseRequest productRequest) {
@@ -42,11 +43,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public boolean checkQuantity(String shoppingCartId, String orderId) {
-        return false;
-    }
-
-    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
+    public boolean checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
         Map<String, Integer> products = shoppingCart.getProducts();
 
         double totalWeight = 0.0;
@@ -77,11 +74,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             }
         }
 
-        return BookedProductsDto.builder()
-                .deliveryWeight(totalWeight)
-                .deliveryVolume(totalVolume)
-                .fragile(hasFragile)
-                .build();
+        return hasFragile;
     }
 
     @Override
@@ -100,7 +93,6 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public AddressDto getAddress() {
-        WarehouseAddress address = new WarehouseAddress();
         return AddressDto.builder()
                 .country(address.getCountry())
                 .city(address.getCity())

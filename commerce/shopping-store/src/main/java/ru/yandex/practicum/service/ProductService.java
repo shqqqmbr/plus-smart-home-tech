@@ -1,6 +1,5 @@
 package ru.yandex.practicum.service;
 
-import org.springframework.data.domain.Pageable;
 import ru.yandex.practicum.constant.ProductCategory;
 import ru.yandex.practicum.constant.QuantityState;
 import ru.yandex.practicum.dto.PageResponse;
@@ -9,7 +8,7 @@ import ru.yandex.practicum.dto.ProductDto;
 import java.util.UUID;
 
 public interface ProductService {
-    PageResponse<ProductDto> getAllProducts(ProductCategory productCategory, Pageable pageable);
+    PageResponse<ProductDto> getAllProducts(ProductCategory productCategory, int page, int size, String sort);
 
     ProductDto createProduct(ProductDto productDto);
 

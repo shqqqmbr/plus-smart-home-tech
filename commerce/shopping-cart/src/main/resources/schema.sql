@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS shopping_carts
 CREATE TABLE IF NOT EXISTS carts_products
 (
     shopping_cart_id UUID REFERENCES shopping_carts (shopping_cart_id),
-    product_id       UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    quantity         INT
+    product_id       UUID NOT NULL,
+    quantity         INT,
+    PRIMARY KEY (shopping_cart_id, product_id)
 );

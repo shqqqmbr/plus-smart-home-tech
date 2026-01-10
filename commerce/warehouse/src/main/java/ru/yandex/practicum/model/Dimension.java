@@ -10,7 +10,8 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(of = "dimensionId")
 @Builder
 @NoArgsConstructor

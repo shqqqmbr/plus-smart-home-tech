@@ -2,16 +2,22 @@ package ru.yandex.practicum.client;
 
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.*;
 
 @FeignClient(name = "warehouse")
+@RequestMapping("/api/v1/warehouse")
 public interface WarehouseClient {
-    void addNewProductToWarehouse(@RequestBody @Valid NewProductInWarehouseRequest newProductInWarehouseRequestDto);
 
-    BookedProductsDto checkProductQuantityInWarehouse(@RequestBody @Valid ShoppingCartDto shoppingCartDto);
+    @PutMapping
+    void addNewProduct(@RequestBody @Valid NewProductInWarehouseRequest newProductInWarehouseRequestDto);
 
-    void updateProductToWarehouse(@RequestBody @Valid AddProductToWarehouseRequest addProductToWarehouseRequestDto);
+    @PostMapping("/check")
+    BookedProductsDto checkQuantity(@RequestBody @Valid ShoppingCartDto shoppingCartDto);
 
-    AddressDto getWarehouseAddress();
+    @PostMapping("/add")
+    void acceptProduct(@RequestBody @Valid AddProductToWarehouseRequest addProductToWarehouseRequestDto);
+
+    @GetMapping("/address")
+    AddressDto getAddress();
 }
