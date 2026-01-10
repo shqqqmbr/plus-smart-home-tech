@@ -15,6 +15,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartProductId implements Serializable {
-    private UUID productId;
     private UUID shoppingCartId;
+    private UUID productId;
 }

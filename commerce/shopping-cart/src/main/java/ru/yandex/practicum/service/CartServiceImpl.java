@@ -78,8 +78,8 @@ public class CartServiceImpl implements CartService {
         List<CartProduct> newCartProducts = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : productIds.entrySet()) {
             CartProductId cartProductId = new CartProductId(
-                    UUID.fromString(entry.getKey()),
-                    shoppingCartId
+                    shoppingCartId,
+                    UUID.fromString(entry.getKey())
             );
             CartProduct cartProduct = new CartProduct(cartProductId, entry.getValue());
             newCartProducts.add(cartProduct);
@@ -106,7 +106,7 @@ public class CartServiceImpl implements CartService {
         }
         UUID shoppingCartId = shoppingCart.getShoppingCartId();
         for (UUID productId : productIds) {
-            CartProductId cartProduct = new CartProductId(productId, shoppingCartId);
+            CartProductId cartProduct = new CartProductId(shoppingCartId, productId);
             cartProductsRepository.findById(cartProduct)
                     .ifPresent(cartProductsRepository::delete);
         }
@@ -126,8 +126,8 @@ public class CartServiceImpl implements CartService {
     public ShoppingCartDto changeQuantity(String username, ChangeProductQuantityRequest request) {
         ShoppingCart cart = shoppingCartRepository.findByUsernameIgnoreCaseAndActivated(username, true);
         CartProductId fullId = new CartProductId(
-                request.getProductId(),
-                cart.getShoppingCartId()
+                cart.getShoppingCartId(),
+                request.getProductId()
         );
         CartProduct cartProduct = cartProductsRepository.findById(fullId).get();
         if (request.getNewQuantity() == 0) {
