@@ -3,7 +3,8 @@ package ru.yandex.practicum.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
 @RequiredArgsConstructor

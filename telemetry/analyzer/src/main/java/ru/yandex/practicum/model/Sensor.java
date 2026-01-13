@@ -7,7 +7,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(of = {"sensorId", "hubId"})
 @Builder
 @RequiredArgsConstructor

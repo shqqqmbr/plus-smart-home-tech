@@ -30,18 +30,21 @@ public class KafkaConfig {
 
     @Bean
     public Properties getProducerProps() {
-        if (producerProperties == null) {
-            producerProperties = new Properties();
-            producerProperties.put("bootstrap.servers", "localhost:9092");
-            producerProperties.put("acks", "all");
-            producerProperties.put("retries", 3);
-            producerProperties.put("max.in.flight.requests.per.connection", 1);
-            producerProperties.put("enable.idempotence", "true");
-            producerProperties.put("linger.ms", 5);
-            producerProperties.put("batch.size", 16384);
-            producerProperties.put("buffer.memory", 33554432);
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        props.put("acks", "all");
+        props.put("retries", 3);
+        props.put("max.in.flight.requests.per.connection", 1);
+        props.put("enable.idempotence", "true");
+        props.put("linger.ms", 5);
+        props.put("batch.size", 16384);
+        props.put("buffer.memory", 33554432);
+        if (producerProperties != null) {
+            props.putAll(producerProperties);
         }
-        return producerProperties;
+        return props;
     }
 
     @Bean

@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:warehousedb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+warehouse:
+  address:
+    country: "Russia"
+    city: "Moscow"
+    street: "Arbat"
+    house: "14"
+    flat: "1"
