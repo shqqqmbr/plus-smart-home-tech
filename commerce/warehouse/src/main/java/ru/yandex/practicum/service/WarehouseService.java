@@ -6,6 +6,8 @@ import ru.yandex.practicum.dto.AddressDto;
 import ru.yandex.practicum.dto.NewProductInWarehouseRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
 
+import java.util.Map;
+
 public interface WarehouseService {
 
     void addNewProduct(@RequestBody NewProductInWarehouseRequest product);
@@ -15,4 +17,10 @@ public interface WarehouseService {
     void addProductToWarehouse(AddProductToWarehouseRequest request);
 
     AddressDto getAddress();
+
+    void assemblyProductForOrderFromShoppingCart(ShoppingCartDto cart);
+
+    void shippedToDelivery(String deliveryId);
+
+    void returnProducts(Map<String, Integer> products);
 }

@@ -1,13 +1,14 @@
 package ru.yandex.practicum.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.constant.OrderState;
 
 import java.util.Map;
 
-@Data
+@Getter @Setter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDto {
     String orderId;
     String shoppingCartId;

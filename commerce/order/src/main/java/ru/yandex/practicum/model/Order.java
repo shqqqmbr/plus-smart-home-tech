@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.GenericGenerator;
 import ru.yandex.practicum.constant.OrderState;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public class Order {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "order_id")
-    String orderId;
+    UUID orderId;
 
     @NotNull
     UUID shoppingCartId;
@@ -34,7 +35,7 @@ public class Order {
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
     @Builder.Default
-    Map<UUID, Integer> products;
+    Map<UUID, Integer> products = new HashMap<>();
 
     UUID paymentId;
     UUID deliveryId;

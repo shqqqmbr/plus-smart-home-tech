@@ -35,4 +35,19 @@ public class WarehouseController {
     public AddressDto getAddress() {
         return warehouseService.getAddress();
     }
+
+    @PostMapping("/assembly")
+    public void assemblyProductForOrderFromShoppingCart(@RequestBody ShoppingCartDto cart) {
+        warehouseService.assemblyProductForOrderFromShoppingCart(cart);
+    }
+
+    @PostMapping("/shipped")
+    public void shippedToDelivery(@RequestBody String deliveryId) {
+        warehouseService.shippedToDelivery(deliveryId);
+    }
+
+    @PostMapping("/return")
+    public void returnProducts(@RequestBody java.util.Map<String, Integer> products) {
+        warehouseService.returnProducts(products);
+    }
 }

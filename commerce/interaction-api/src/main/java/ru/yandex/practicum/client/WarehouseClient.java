@@ -20,4 +20,13 @@ public interface WarehouseClient {
 
     @GetMapping("/address")
     AddressDto getAddress();
+
+    @PostMapping("/shipped")
+    void shippedToDelivery(@RequestBody String deliveryId);
+
+    @PostMapping("/return")
+    void returnProducts(@RequestBody java.util.Map<String, Integer> products);
+
+    @PostMapping("/assembly")
+    void assemblyProductForOrderFromShoppingCart(@RequestBody ShoppingCartDto cart);
 }

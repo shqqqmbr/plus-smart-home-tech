@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS products
     price          DOUBLE PRECISION
 )
 
+

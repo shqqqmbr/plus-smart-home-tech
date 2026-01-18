@@ -7,9 +7,12 @@ import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.mapper.DimensionMapper;
+import ru.yandex.practicum.model.ReservedProduct;
 import ru.yandex.practicum.model.WarehouseProduct;
+import ru.yandex.practicum.repository.ReservedProductRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
+    private final ReservedProductRepository reservedProductRepository;
     private final DimensionMapper dimensionMapper;
     private final WarehouseAddress address;
 
@@ -100,6 +104,59 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .house(address.getHouse())
                 .flat(address.getFlat())
                 .build();
+    }
+
+    @Override
+    public void assemblyProductForOrderFromShoppingCart(ShoppingCartDto cart) {
+        UUID shoppingCartId = UUID.fromString(cart.getShoppingCartId());
+        Map<String, Integer> products = cart.getProducts();
+
+        for (Map.Entry<String, Integer> entry : products.entrySet()) {
+            UUID productId = UUID.fromString(entry.getKey());
+            int quantity = entry.getValue();
+
+            WarehouseProduct warehouseProduct = warehouseRepository.findByProductId(productId)
+                    .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
+                            "Товар с ID " + productId + " не найден на складе"
+                    ));
+
+            if (warehouseProduct.getQuantity() < quantity) {
+                throw new ProductInShoppingCartLowQuantityInWarehouse(
+                        "Недостаточно товара " + productId + " на складе"
+                );
+            }
+
+            warehouseProduct.setQuantity(warehouseProduct.getQuantity() - quantity);
+            warehouseRepository.save(warehouseProduct);
+
+            ReservedProduct reservedProduct = ReservedProduct.builder()
+                    .shoppingCartId(shoppingCartId)
+                    .productId(productId)
+                    .reservedQuantity(quantity)
+                    .build();
+
+            reservedProductRepository.save(reservedProduct);
+        }
+    }
+
+    @Override
+    public void shippedToDelivery(String deliveryId) {
+    }
+
+    @Override
+    public void returnProducts(Map<String, Integer> products) {
+        for (Map.Entry<String, Integer> entry : products.entrySet()) {
+            UUID productId = UUID.fromString(entry.getKey());
+            int quantity = entry.getValue();
+
+            WarehouseProduct warehouseProduct = warehouseRepository.findByProductId(productId)
+                    .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
+                            "Товар с ID " + productId + " не найден на складе"
+                    ));
+
+            warehouseProduct.setQuantity(warehouseProduct.getQuantity() + quantity);
+            warehouseRepository.save(warehouseProduct);
+        }
     }
 
     private double calculateVolume(DimensionDto dimension) {
