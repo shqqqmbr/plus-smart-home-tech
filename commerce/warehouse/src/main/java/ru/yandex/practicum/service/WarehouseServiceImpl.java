@@ -47,7 +47,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public boolean checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
+    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
         Map<String, Integer> products = shoppingCart.getProducts();
 
         double totalWeight = 0.0;
@@ -78,7 +78,11 @@ public class WarehouseServiceImpl implements WarehouseService {
             }
         }
 
-        return hasFragile;
+        return BookedProductsDto.builder()
+                .deliveryWeight(totalWeight)
+                .deliveryVolume(totalVolume)
+                .fragile(hasFragile)
+                .build();
     }
 
     @Override

@@ -8,6 +8,9 @@ kafka:
     sensors-events: telemetry.sensors.v1
     hubs-events: telemetry.hubs.v1
 
+server:
+  port: 8090
+
 grpc:
   server:
     port: 9091

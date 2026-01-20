@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.client.DeliveryClient;
 import ru.yandex.practicum.client.PaymentClient;
+import ru.yandex.practicum.client.ShoppingCartClient;
 import ru.yandex.practicum.client.WarehouseClient;
 import ru.yandex.practicum.constant.DeliveryState;
 import ru.yandex.practicum.constant.OrderState;
@@ -29,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final AddressMapper addressMapper;
+    private final ShoppingCartClient shoppingCartClient;
     private final WarehouseClient warehouseClient;
     private final PaymentClient paymentClient;
     private final DeliveryClient deliveryClient;
@@ -44,6 +46,18 @@ public class OrderServiceImpl implements OrderService {
         ShoppingCartDto cart = request.shoppingCart();
         BookedProductsDto bookedProducts = warehouseClient.checkQuantity(cart);
 
+        String username = cart.getUsername();
+        if ((username == null || username.isBlank())
+                && cart.getShoppingCartId() != null
+                && !cart.getShoppingCartId().isBlank()) {
+            try {
+                ShoppingCartDto cartFromService = shoppingCartClient.getCartById(UUID.fromString(cart.getShoppingCartId()));
+                username = cartFromService != null ? cartFromService.getUsername() : null;
+            } catch (Exception ignored) {
+                // best-effort: order can still be created, but won't be user-filterable
+            }
+        }
+
         Map<UUID, Integer> productsMap = cart.getProducts().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> UUID.fromString(e.getKey()),
@@ -52,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .shoppingCartId(UUID.fromString(cart.getShoppingCartId()))
+                .username(username)
                 .products(productsMap)
                 .state(OrderState.NEW)
                 .deliveryWeight(bookedProducts.getDeliveryWeight())

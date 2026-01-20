@@ -65,6 +65,21 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public ShoppingCartDto getCartById(UUID shoppingCartId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
+                .orElseThrow(() -> new NotAuthorizedException("Cart " + shoppingCartId + " not found"));
+
+        List<CartProduct> cartProductList = cartProductsRepository
+                .findAllByCartProductId_ShoppingCartId(shoppingCart.getShoppingCartId());
+
+        ShoppingCartDto dto = cartMapper.toDto(shoppingCart, cartProductList);
+        if (dto.getProducts() == null) {
+            dto.setProducts(new HashMap<>());
+        }
+        return dto;
+    }
+
+    @Override
     @Transactional
     public ShoppingCartDto addProductToCart(String username, Map<String, Integer> productIds) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameIgnoreCaseAndActivated(username, true);

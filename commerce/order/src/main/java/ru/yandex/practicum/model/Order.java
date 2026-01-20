@@ -30,6 +30,9 @@ public class Order {
     @NotNull
     UUID shoppingCartId;
 
+    @Column(name = "username")
+    String username;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"))
     @MapKeyColumn(name = "product_id")

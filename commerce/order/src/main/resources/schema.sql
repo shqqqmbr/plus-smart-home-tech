@@ -1,9 +1,10 @@
-DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS order_products;
+DROP TABLE IF EXISTS orders;
 
 CREATE TABLE  IF NOT EXISTS orders (
                         order_id VARCHAR(36) PRIMARY KEY,
                         shopping_cart_id UUID NOT NULL,
+                        username VARCHAR(255),
                         payment_id UUID,
                         delivery_id UUID,
                         state VARCHAR(50) NOT NULL DEFAULT 'NEW',

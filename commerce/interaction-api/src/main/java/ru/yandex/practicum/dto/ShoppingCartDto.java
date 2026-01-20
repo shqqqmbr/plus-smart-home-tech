@@ -8,6 +8,7 @@ import java.util.Map;
 @Data
 @Builder
 public class ShoppingCartDto {
+    private String username;
     private String shoppingCartId;
     private Map<String, Integer> products;
 }

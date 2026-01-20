@@ -26,6 +26,7 @@ public class CartMapperImpl implements CartMapper {
         Map<String, Integer> productsMap = cartProducts.stream()
                 .collect(Collectors.toMap(cartProduct -> cartProduct.getCartProductId().getProductId().toString(), CartProduct::getQuantity));
         return ShoppingCartDto.builder()
+                .username(cart.getUsername())
                 .shoppingCartId(cart.getShoppingCartId().toString())
                 .products(productsMap)
                 .build();
