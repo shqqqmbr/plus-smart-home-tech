@@ -32,9 +32,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         double totalCost = 0.0;
-        for (Map.Entry<String, Integer> entry : orderDto.getProducts().entrySet()) {
+        for (Map.Entry<String, Long> entry : orderDto.getProducts().entrySet()) {
             UUID productId = UUID.fromString(entry.getKey());
-            int quantity = entry.getValue();
+            long quantity = entry.getValue();
 
             ProductDto product = shoppingStoreClient.getProduct(productId);
             totalCost += product.getPrice() * quantity;

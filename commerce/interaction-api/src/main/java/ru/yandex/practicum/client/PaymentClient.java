@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.dto.PaymentDto;
 
-import java.util.UUID;
-
 @FeignClient(name = "payment", path = "/api/v1/payment")
 public interface PaymentClient {
 

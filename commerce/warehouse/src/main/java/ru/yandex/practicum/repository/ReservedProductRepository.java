@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ReservedProductRepository extends JpaRepository<ReservedProduct, UUID> {
-    List<ReservedProduct> findByShoppingCartId(UUID shoppingCartId);
+    List<ReservedProduct> findByOrderIdAndDeliveryId(UUID orderId, UUID deliveryId);
 }

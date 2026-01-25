@@ -1,11 +1,7 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.dto.AddProductToWarehouseRequest;
-import ru.yandex.practicum.dto.AddressDto;
-import ru.yandex.practicum.dto.BookedProductsDto;
-import ru.yandex.practicum.dto.NewProductInWarehouseRequest;
-import ru.yandex.practicum.dto.ShoppingCartDto;
+import ru.yandex.practicum.dto.*;
 
 import java.util.Map;
 
@@ -19,9 +15,9 @@ public interface WarehouseService {
 
     AddressDto getAddress();
 
-    void assemblyProductForOrderFromShoppingCart(ShoppingCartDto cart);
+    BookedProductsDto assemblyProductForOrderFromShoppingCart(AssemblyProductsForOrderRequest request);
 
-    void shippedToDelivery(String deliveryId);
+    void shippedToDelivery(ShippedToDeliveryRequest request);
 
-    void returnProducts(Map<String, Integer> products);
+    void returnProducts(Map<String, Long> products);
 }

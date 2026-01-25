@@ -23,7 +23,7 @@ public class CartMapperImpl implements CartMapper {
 
     @Override
     public ShoppingCartDto toDto(ShoppingCart cart, List<CartProduct> cartProducts) {
-        Map<String, Integer> productsMap = cartProducts.stream()
+        Map<String, Long> productsMap = cartProducts.stream()
                 .collect(Collectors.toMap(cartProduct -> cartProduct.getCartProductId().getProductId().toString(), CartProduct::getQuantity));
         return ShoppingCartDto.builder()
                 .username(cart.getUsername())

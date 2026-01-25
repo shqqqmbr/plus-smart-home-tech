@@ -7,7 +7,8 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.constant.DeliveryState;
 
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeliveryDto {

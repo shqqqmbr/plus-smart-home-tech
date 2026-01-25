@@ -7,14 +7,17 @@ import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.mapper.DimensionMapper;
+import ru.yandex.practicum.mapper.ReservedProductMapper;
 import ru.yandex.practicum.model.ReservedProduct;
 import ru.yandex.practicum.model.WarehouseProduct;
 import ru.yandex.practicum.repository.ReservedProductRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     private final ReservedProductRepository reservedProductRepository;
     private final DimensionMapper dimensionMapper;
     private final WarehouseAddress address;
+    private final ReservedProductMapper reservedProductMapper;
 
     @Override
     public void addNewProduct(NewProductInWarehouseRequest productRequest) {
@@ -48,15 +52,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
-        Map<String, Integer> products = shoppingCart.getProducts();
+        Map<String, Long> products = shoppingCart.getProducts();
 
         double totalWeight = 0.0;
         double totalVolume = 0.0;
         boolean hasFragile = false;
 
-        for (Map.Entry<String, Integer> entry : products.entrySet()) {
+        for (Map.Entry<String, Long> entry : products.entrySet()) {
             UUID productId = UUID.fromString(entry.getKey());
-            int requestedQuantity = entry.getValue();
+            long requestedQuantity = entry.getValue();
 
             WarehouseProduct warehouseProduct = warehouseRepository.findByProductId(productId)
                     .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
@@ -111,47 +115,48 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public void assemblyProductForOrderFromShoppingCart(ShoppingCartDto cart) {
-        UUID shoppingCartId = UUID.fromString(cart.getShoppingCartId());
-        Map<String, Integer> products = cart.getProducts();
+    public BookedProductsDto assemblyProductForOrderFromShoppingCart(AssemblyProductsForOrderRequest request) {
+        Map<UUID, Long> productsForAssembly = request.products().entrySet().stream()
+                .collect(Collectors.toMap(e -> UUID.fromString(e.getKey()), Map.Entry::getValue));
 
-        for (Map.Entry<String, Integer> entry : products.entrySet()) {
-            UUID productId = UUID.fromString(entry.getKey());
-            int quantity = entry.getValue();
+        List<WarehouseProduct> warehouseProductList = warehouseRepository.findAllByProductIdIn(
+                productsForAssembly.keySet().stream()
+                        .toList()
+        );
 
-            WarehouseProduct warehouseProduct = warehouseRepository.findByProductId(productId)
-                    .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
-                            "Товар с ID " + productId + " не найден на складе"
-                    ));
+        Map<UUID, WarehouseProduct> warehouseProductMap = warehouseProductList.stream()
+                .collect(Collectors.toMap(WarehouseProduct::getProductId, product -> product));
 
-            if (warehouseProduct.getQuantity() < quantity) {
-                throw new ProductInShoppingCartLowQuantityInWarehouse(
-                        "Недостаточно товара " + productId + " на складе"
-                );
-            }
-
-            warehouseProduct.setQuantity(warehouseProduct.getQuantity() - quantity);
-            warehouseRepository.save(warehouseProduct);
-
+        List<ReservedProduct> reservedProductsList = new ArrayList<>();
+        for (Map.Entry<UUID, Long> entry : productsForAssembly.entrySet()) {
             ReservedProduct reservedProduct = ReservedProduct.builder()
-                    .shoppingCartId(shoppingCartId)
-                    .productId(productId)
-                    .reservedQuantity(quantity)
+                    .orderId(UUID.fromString(request.orderId()))
+                    .productId(entry.getKey())
+                    .reservedQuantity(entry.getValue())
                     .build();
-
-            reservedProductRepository.save(reservedProduct);
+            reservedProductsList.add(reservedProduct);
         }
+        List<ReservedProduct> saveOrderBookingList = reservedProductRepository.saveAll(reservedProductsList);
+        return reservedProductMapper.toBookedProductsDto(saveOrderBookingList, warehouseProductMap);
     }
 
     @Override
-    public void shippedToDelivery(String deliveryId) {
+    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+        List<ReservedProduct> reservedProducts = reservedProductRepository.findByOrderIdAndDeliveryId(
+                UUID.fromString(request.orderId()),
+                UUID.fromString(request.deliveryId())
+        );
+        for (ReservedProduct reservedProduct : reservedProducts) {
+            reservedProduct.setDeliveryId(UUID.fromString(request.deliveryId()));
+        }
+        reservedProductRepository.saveAll(reservedProducts);
     }
 
     @Override
-    public void returnProducts(Map<String, Integer> products) {
-        for (Map.Entry<String, Integer> entry : products.entrySet()) {
+    public void returnProducts(Map<String, Long> products) {
+        for (Map.Entry<String, Long> entry : products.entrySet()) {
             UUID productId = UUID.fromString(entry.getKey());
-            int quantity = entry.getValue();
+            Long quantity = entry.getValue();
 
             WarehouseProduct warehouseProduct = warehouseRepository.findByProductId(productId)
                     .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(

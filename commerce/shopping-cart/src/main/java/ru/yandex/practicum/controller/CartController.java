@@ -29,7 +29,7 @@ public class CartController {
     }
 
     @PutMapping
-    public ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Integer> productsIds) {
+    public ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Long> productsIds) {
         return cartService.addProductToCart(username, productsIds);
     }
 

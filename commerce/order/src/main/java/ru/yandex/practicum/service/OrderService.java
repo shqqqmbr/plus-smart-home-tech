@@ -2,11 +2,12 @@ package ru.yandex.practicum.service;
 
 import ru.yandex.practicum.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.dto.PageResponse;
 import ru.yandex.practicum.dto.ProductReturnRequest;
 
+import java.util.List;
+
 public interface OrderService {
-    PageResponse<OrderDto> getOrders(String username, Integer page, Integer size, String sort);
+    List<OrderDto> getOrders(String username);
 
     OrderDto createOrder(CreateNewOrderRequest request);
 

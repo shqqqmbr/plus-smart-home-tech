@@ -3,12 +3,10 @@ package ru.yandex.practicum.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.dto.AddProductToWarehouseRequest;
-import ru.yandex.practicum.dto.AddressDto;
-import ru.yandex.practicum.dto.BookedProductsDto;
-import ru.yandex.practicum.dto.NewProductInWarehouseRequest;
-import ru.yandex.practicum.dto.ShoppingCartDto;
+import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.service.WarehouseService;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,17 +36,17 @@ public class WarehouseController {
     }
 
     @PostMapping("/assembly")
-    public void assemblyProductForOrderFromShoppingCart(@RequestBody ShoppingCartDto cart) {
-        warehouseService.assemblyProductForOrderFromShoppingCart(cart);
+    public BookedProductsDto assemblyProductForOrderFromShoppingCart(@RequestBody AssemblyProductsForOrderRequest request) {
+        return warehouseService.assemblyProductForOrderFromShoppingCart(request);
     }
 
     @PostMapping("/shipped")
-    public void shippedToDelivery(@RequestBody String deliveryId) {
-        warehouseService.shippedToDelivery(deliveryId);
+    public void shippedToDelivery(@RequestBody ShippedToDeliveryRequest request) {
+        warehouseService.shippedToDelivery(request);
     }
 
     @PostMapping("/return")
-    public void returnProducts(@RequestBody java.util.Map<String, Integer> products) {
+    public void returnProducts(@RequestBody Map<String, Long> products) {
         warehouseService.returnProducts(products);
     }
 }

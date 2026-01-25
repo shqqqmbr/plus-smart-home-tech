@@ -9,6 +9,6 @@ public record ProductReturnRequest(
         @NotBlank
         String orderId,
         @NotNull
-        Map<String, Integer> products
+        Map<String, Long> products
 ) {
 }

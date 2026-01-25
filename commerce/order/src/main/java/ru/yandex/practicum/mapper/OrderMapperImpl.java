@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class OrderMapperImpl implements OrderMapper {
     @Override
     public OrderDto toDto(Order order) {
-        Map<String, Integer> productsForDto = order.getProducts().entrySet().stream()
+        Map<String, Long> productsForDto = order.getProducts().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> e.getKey().toString(),
                         Map.Entry::getValue
@@ -35,7 +35,7 @@ public class OrderMapperImpl implements OrderMapper {
 
     @Override
     public Order toEntity(OrderDto dto) {
-        Map<UUID, Integer> productsForEnt = dto.getProducts().entrySet().stream()
+        Map<UUID, Long> productsForEnt = dto.getProducts().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> UUID.fromString(e.getKey()),
                         Map.Entry::getValue

@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.dto.PageResponse;
 import ru.yandex.practicum.dto.ProductReturnRequest;
 import ru.yandex.practicum.service.OrderService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,8 +16,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public PageResponse<OrderDto> getClientOrders(@RequestParam String username) {
-        return orderService.getOrders(username, 0, 150, null);
+    public List<OrderDto> getClientOrders(@RequestParam String username) {
+        return orderService.getOrders(username);
     }
 
     @PutMapping
@@ -25,7 +26,7 @@ public class OrderController {
     }
 
     @PostMapping("/return")
-    public OrderDto productReturn(@RequestBody ProductReturnRequest request) {
+    public OrderDto productReturn(@RequestParam ProductReturnRequest request) {
         return orderService.returnOrder(request);
     }
 

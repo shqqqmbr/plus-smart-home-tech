@@ -8,6 +8,7 @@ import ru.yandex.practicum.constant.DeliveryState;
 import ru.yandex.practicum.dto.AddressDto;
 import ru.yandex.practicum.dto.DeliveryDto;
 import ru.yandex.practicum.dto.OrderDto;
+import ru.yandex.practicum.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.exception.NoDeliveryFoundException;
 import ru.yandex.practicum.mapper.DeliveryMapper;
 import ru.yandex.practicum.model.Delivery;
@@ -44,15 +45,16 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public void pickedDelivery(String orderId) {
-        Delivery delivery = deliveryRespoitory.findByOrderId(orderId);
+    public void pickedDelivery(String deliveryId) {
+        Delivery delivery = deliveryRespoitory.findByOrderId(deliveryId);
         if (delivery == null) {
-            throw new NoDeliveryFoundException("Delivery not found for order: " + orderId);
+            throw new NoDeliveryFoundException("Delivery not found for order: " + deliveryId);
         }
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
         deliveryRespoitory.save(delivery);
-        orderClient.assembly(UUID.fromString(orderId));
-        warehouseClient.shippedToDelivery(orderId);
+        orderClient.assembly(UUID.fromString(deliveryId));
+        ShippedToDeliveryRequest request = new ShippedToDeliveryRequest(delivery.getOrderId(), deliveryId);
+        warehouseClient.shippedToDelivery(request);
     }
 
     @Override
@@ -77,7 +79,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (warehouseStreet.contains("ADDRESS_2")) {
                 cost = baseCost * 2 + baseCost;
             } else if (warehouseStreet.contains("ADDRESS_1")) {
-                cost = baseCost * 1;
+                cost = baseCost * 1 + baseCost;
             }
         }
 
@@ -89,6 +91,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         cost = cost + order.getDeliveryVolume() * 0.2;
 
+//        У нас по ТЗ входной параметр только OrderDto. Поэтому мне не до конца понятен комментарий
         if (order.getDeliveryId() != null) {
             Delivery delivery = deliveryRespoitory.findByOrderId(order.getOrderId());
             if (delivery != null && delivery.getToAddress() != null) {

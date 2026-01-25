@@ -1,25 +1,19 @@
 package ru.yandex.practicum.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.client.DeliveryClient;
 import ru.yandex.practicum.client.PaymentClient;
 import ru.yandex.practicum.client.ShoppingCartClient;
 import ru.yandex.practicum.client.WarehouseClient;
-import ru.yandex.practicum.constant.DeliveryState;
 import ru.yandex.practicum.constant.OrderState;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.NoOrderFoundException;
-import ru.yandex.practicum.mapper.AddressMapper;
 import ru.yandex.practicum.mapper.OrderMapper;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.repository.OrderRepository;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,16 +23,16 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final AddressMapper addressMapper;
     private final ShoppingCartClient shoppingCartClient;
     private final WarehouseClient warehouseClient;
     private final PaymentClient paymentClient;
     private final DeliveryClient deliveryClient;
 
     @Override
-    public PageResponse<OrderDto> getOrders(String username, Integer page, Integer size, String sort) {
-        Pageable pageable = createPageable(page, size, sort);
-        return getAllOrdersInternal(username, pageable);
+    public List<OrderDto> getOrders(String username) {
+        return orderRepository.findAllByUsername(username).stream()
+                .map(orderMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -54,11 +48,10 @@ public class OrderServiceImpl implements OrderService {
                 ShoppingCartDto cartFromService = shoppingCartClient.getCartById(UUID.fromString(cart.getShoppingCartId()));
                 username = cartFromService != null ? cartFromService.getUsername() : null;
             } catch (Exception ignored) {
-                // best-effort: order can still be created, but won't be user-filterable
             }
         }
 
-        Map<UUID, Integer> productsMap = cart.getProducts().entrySet().stream()
+        Map<UUID, Long> productsMap = cart.getProducts().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> UUID.fromString(e.getKey()),
                         Map.Entry::getValue
@@ -99,10 +92,10 @@ public class OrderServiceImpl implements OrderService {
 
         OrderDto orderDto = orderMapper.toDto(order);
         PaymentDto payment = paymentClient.create(orderDto);
-        
+
         order.setPaymentId(UUID.fromString(payment.getPaymentId()));
         order.setState(OrderState.ON_PAYMENT);
-        
+
         return orderMapper.toDto(orderRepository.save(order));
     }
 
@@ -110,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto paymentOrderFailed(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-        
+
         order.setState(OrderState.PAYMENT_FAILED);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -119,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto deliveryOrder(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-        
+
         order.setState(OrderState.DELIVERED);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -128,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto deliveryOrderFailed(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-        
+
         order.setState(OrderState.DELIVERY_FAILED);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -137,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto completeOrder(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-        
+
         order.setState(OrderState.COMPLETED);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -149,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderDto orderDto = orderMapper.toDto(order);
         double totalCost = paymentClient.calculateTotalCost(orderDto);
-        
+
         order.setTotalPrice(totalCost);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -161,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderDto orderDto = orderMapper.toDto(order);
         double deliveryCost = deliveryClient.calculateDeliveryCost(orderDto);
-        
+
         order.setDeliveryPrice(deliveryCost);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -170,19 +163,12 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto assemblyOrder(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-
-        ShoppingCartDto cart = ShoppingCartDto.builder()
-                .shoppingCartId(order.getShoppingCartId().toString())
-                .products(order.getProducts().entrySet().stream()
-                        .collect(Collectors.toMap(
-                                e -> e.getKey().toString(),
-                                Map.Entry::getValue
-                        )))
-                .build();
-
-        warehouseClient.assemblyProductForOrderFromShoppingCart(cart);
+        Map<String, Long> products = order.getProducts().entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
+        AssemblyProductsForOrderRequest request = new AssemblyProductsForOrderRequest(orderId, products);
+        warehouseClient.assemblyProductForOrderFromShoppingCart(request);
         order.setState(OrderState.ASSEMBLED);
-        
+
         return orderMapper.toDto(orderRepository.save(order));
     }
 
@@ -190,29 +176,8 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto assemblyOrderFailed(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new NoOrderFoundException("Order not found: " + orderId));
-        
+
         order.setState(OrderState.ASSEMBLY_FAILED);
         return orderMapper.toDto(orderRepository.save(order));
-    }
-
-    private PageResponse<OrderDto> getAllOrdersInternal(String username,
-                                                        Pageable pageable) {
-        Page<Order> productPage = orderRepository.findAllByUsername(username, pageable);
-        Page<OrderDto> dtoPage = productPage.map(orderMapper::toDto);
-        return PageResponse.fromPage(dtoPage);
-    }
-
-    private Pageable createPageable(int page, int size, String sort) {
-        if (sort != null && !sort.isBlank()) {
-            String[] sortParams = sort.split(",");
-            if (sortParams.length == 2) {
-                Sort.Direction direction = sortParams[1].trim().equalsIgnoreCase("desc")
-                        ? Sort.Direction.DESC
-                        : Sort.Direction.ASC;
-                return PageRequest.of(page, size, Sort.by(direction, sortParams[0].trim()));
-            }
-            return PageRequest.of(page, size, Sort.by(sortParams[0].trim()));
-        }
-        return PageRequest.of(page, size);
     }
 }

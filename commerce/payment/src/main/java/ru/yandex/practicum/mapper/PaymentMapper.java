@@ -5,5 +5,6 @@ import ru.yandex.practicum.model.Payment;
 
 public interface PaymentMapper {
     PaymentDto toDto(Payment payment);
+
     Payment toEntity(PaymentDto paymentDto);
 }
