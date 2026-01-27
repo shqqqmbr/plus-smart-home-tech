@@ -73,3 +73,33 @@ services:
       POSTGRES_DB: warehouse
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
+
+  db-order:
+    image: postgres:16.1
+    container_name: db-order
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+
+  db-payment:
+    image: postgres:16.1
+    container_name: db-payment
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_DB: payment
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+
+  db-delivery:
+    image: postgres:16.1
+    container_name: db-delivery
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_DB: delivery
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345

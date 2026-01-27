@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
             dto.setProducts(new HashMap<>());
             return dto;
         }
-        Map<String, Integer> productsMap = new LinkedHashMap<>();
+        Map<String, Long> productsMap = new LinkedHashMap<>();
         int counter = 1;
 
         for (CartProduct cartProduct : cartProductList) {
@@ -65,8 +65,23 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public ShoppingCartDto getCartById(UUID shoppingCartId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
+                .orElseThrow(() -> new NotAuthorizedException("Cart " + shoppingCartId + " not found"));
+
+        List<CartProduct> cartProductList = cartProductsRepository
+                .findAllByCartProductId_ShoppingCartId(shoppingCart.getShoppingCartId());
+
+        ShoppingCartDto dto = cartMapper.toDto(shoppingCart, cartProductList);
+        if (dto.getProducts() == null) {
+            dto.setProducts(new HashMap<>());
+        }
+        return dto;
+    }
+
+    @Override
     @Transactional
-    public ShoppingCartDto addProductToCart(String username, Map<String, Integer> productIds) {
+    public ShoppingCartDto addProductToCart(String username, Map<String, Long> productIds) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameIgnoreCaseAndActivated(username, true);
         if (shoppingCart == null) {
             shoppingCart = new ShoppingCart();
@@ -76,7 +91,7 @@ public class CartServiceImpl implements CartService {
         }
         UUID shoppingCartId = shoppingCart.getShoppingCartId();
         List<CartProduct> newCartProducts = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : productIds.entrySet()) {
+        for (Map.Entry<String, Long> entry : productIds.entrySet()) {
             CartProductId cartProductId = new CartProductId(
                     shoppingCartId,
                     UUID.fromString(entry.getKey())
@@ -130,13 +145,13 @@ public class CartServiceImpl implements CartService {
         if (request.getNewQuantity() == 0) {
             cartProductsRepository.delete(cartProduct);
         } else {
-            cartProduct.setQuantity(Math.toIntExact(request.getNewQuantity()));
+            cartProduct.setQuantity(request.getNewQuantity());
             cartProductsRepository.save(cartProduct);
         }
         return getCart(username);
     }
 
-    private Map<CartProductId, Integer> convertToMap(List<CartProduct> cartProducts) {
+    private Map<CartProductId, Long> convertToMap(List<CartProduct> cartProducts) {
         return cartProducts.stream()
                 .collect(Collectors.toMap(
                         CartProduct::getCartProductId,

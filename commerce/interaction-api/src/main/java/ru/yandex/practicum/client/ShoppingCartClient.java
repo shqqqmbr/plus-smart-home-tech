@@ -9,13 +9,16 @@ import ru.yandex.practicum.dto.ShoppingCartDto;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
-@FeignClient(name = "shopping-cart")
-@RequestMapping("/api/v1/shopping-cart")
+@FeignClient(name = "shopping-cart", path = "/api/v1/shopping-cart")
 public interface ShoppingCartClient {
 
     @GetMapping
     ShoppingCartDto getCart(@RequestParam String username);
+
+    @GetMapping("/{shoppingCartId}")
+    ShoppingCartDto getCartById(@PathVariable UUID shoppingCartId);
 
     @PutMapping
     ShoppingCartDto addProductToCart(@RequestParam String username,

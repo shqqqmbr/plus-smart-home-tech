@@ -10,27 +10,30 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.UUID;
 
 @Entity
+@Table(name = "order_bookings")
 @Getter
 @Setter
 @ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "reserved_products")
 public class ReservedProduct {
 
     @Id
     @UuidGenerator
-    @Column(name = "reserved_products_id")
-    UUID reservedProductId;
+    @Column(name = "reserved_product_id")
+    private UUID reservedProductId;
 
-    @Column(name = "shopping_cart_id", nullable = false)
-    UUID shoppingCartId;
+    @Column(name = "order_id", nullable = false)
+    private UUID orderId;
+
+    @Column(name = "delivery_id")
+    private UUID deliveryId;
 
     @Column(name = "product_id", nullable = false)
-    UUID productId;
+    private UUID productId;
 
     @Column(name = "reserved_quantity", nullable = false)
-    long reservedQuantity;
+    private long reservedQuantity;
 
 }

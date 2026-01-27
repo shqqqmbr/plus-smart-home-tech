@@ -16,5 +16,5 @@ import lombok.*;
 public class CartProduct {
     @EmbeddedId
     private CartProductId cartProductId;
-    private Integer quantity;
+    private Long quantity;
 }

@@ -11,8 +11,7 @@ import ru.yandex.practicum.dto.ProductDto;
 
 import java.util.UUID;
 
-@FeignClient(name = "shopping-store")
-@RequestMapping("/api/v1/shopping-store")
+@FeignClient(name = "shopping-store", path = "/api/v1/shopping-store")
 public interface ShoppingStoreClient {
     @GetMapping
     Page<ProductDto> getProducts(@RequestParam ProductCategory category,

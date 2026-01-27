@@ -12,7 +12,9 @@ public interface CartService {
 
     ShoppingCartDto getCart(String username);
 
-    ShoppingCartDto addProductToCart(String username, Map<String, Integer> productIds);
+    ShoppingCartDto getCartById(UUID shoppingCartId);
+
+    ShoppingCartDto addProductToCart(String username, Map<String, Long> productIds);
 
     void deactivateCart(String username);
 

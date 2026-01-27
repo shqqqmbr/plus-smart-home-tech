@@ -23,8 +23,13 @@ public class CartController {
         return cartService.getCart(username);
     }
 
+    @GetMapping("/{shoppingCartId}")
+    public ShoppingCartDto getCartById(@PathVariable UUID shoppingCartId) {
+        return cartService.getCartById(shoppingCartId);
+    }
+
     @PutMapping
-    public ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Integer> productsIds) {
+    public ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Long> productsIds) {
         return cartService.addProductToCart(username, productsIds);
     }
 

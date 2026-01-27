@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.WarehouseProduct;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,4 +14,6 @@ public interface WarehouseRepository extends JpaRepository<WarehouseProduct, UUI
     Optional<WarehouseProduct> findByProductId(UUID productId);
 
     boolean existsByProductId(UUID productId);
+
+    List<WarehouseProduct> findAllByProductIdIn(List<UUID> productId);
 }
